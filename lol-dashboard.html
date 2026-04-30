@@ -22,9 +22,9 @@ body{
   background:var(--bg);color:var(--txt);
   font-family:'Noto Sans KR',sans-serif;
   font-size:14px;font-weight:400;
-  line-height:1.6;letter-spacing:-.01em; /* 한국어 자간 최적화 */
+  line-height:1.6;letter-spacing:-.01em; 
   min-height:100vh;overflow-x:hidden;
-  word-break:keep-all; /* 한국어 줄바꿈 */
+  word-break:keep-all; 
 }
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.3;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
 
@@ -128,7 +128,6 @@ nav{display:flex;flex:1}
 ══════════════════════════════════════ */
 #v-players{flex-direction:row !important;height:calc(100vh - 54px);overflow:hidden}
 
-/* Left roster panel */
 .ps-left{
   width:280px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);
   display:flex;flex-direction:column;overflow:hidden;
@@ -159,98 +158,15 @@ nav{display:flex;flex:1}
 .ps-pwr{font-size:10px;font-weight:700;padding:2px 6px;border-radius:2px;flex-shrink:0;letter-spacing:0}
 .wr-g{background:rgba(102,187,106,.14);color:var(--green)}.wr-b{background:rgba(239,83,80,.1);color:var(--red)}.wr-m{background:rgba(90,90,138,.15);color:var(--mid)}
 
-/* Right detail panel */
 .ps-right{flex:1;overflow:hidden;background:var(--s2);display:flex;flex-direction:column}
-
-/* No selection placeholder */
 .ps-no-sel{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);font-size:10px;letter-spacing:2px;text-transform:uppercase;gap:12px;padding:60px;text-align:center}
 .ps-no-sel-ico{font-size:44px;opacity:.2}
-
-/* add to compare CTA */
-.ps-cta-btn{
-  background:var(--gd);border:1px solid rgba(200,155,60,.3);color:var(--gold);
-  padding:8px 20px;font-family:'Noto Sans KR';font-size:10px;letter-spacing:2px;
-  cursor:pointer;border-radius:3px;transition:all .2s;text-transform:uppercase;width:100%;margin-top:14px;
-}
-.ps-cta-btn:hover{background:rgba(200,155,60,.22)}
-.ps-hero{display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:flex-start;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--b1)}
-.ps-hero-av{
-  width:88px;height:88px;border-radius:12px;background:var(--s3);border:1px solid var(--b2);
-  overflow:hidden;display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue';font-size:40px;color:var(--gold);position:relative;cursor:pointer;
-  transition:border-color .2s;flex-shrink:0;
-}
-.ps-hero-av:hover{border-color:var(--gold)}
-.ps-hero-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.ps-hero-av:hover::after{content:'📷';position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;font-size:26px}
-.ps-hero-meta{}
-.ps-hero-tier{font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.ps-hero-tier::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold)}
-.ps-hero-name{font-family:'Bebas Neue';font-size:38px;letter-spacing:3px;line-height:1;color:var(--txt)}
-.ps-hero-pos{font-size:10px;color:var(--mid);letter-spacing:2px;margin-top:3px;text-transform:uppercase}
-.ps-hero-badges{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
-.bx{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:2px;font-weight:700}
-.bx-mvp{background:rgba(200,155,60,.2);color:var(--gold);border:1px solid rgba(200,155,60,.3)}
-.bx-ace{background:rgba(239,83,80,.12);color:var(--red);border:1px solid rgba(239,83,80,.25)}
-.ps-hero-right{text-align:right}
-.ps-hero-games{font-family:'Bebas Neue';font-size:44px;color:var(--txt);letter-spacing:2px;line-height:1}
-.ps-hero-glbl{font-size:8px;color:var(--dim);letter-spacing:2px;text-transform:uppercase}
-
-/* KDA big */
-.ps-kda-row{display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:6px}
-.ps-kv{font-family:'Bebas Neue';font-size:48px;letter-spacing:1px;line-height:1}
-.ps-kv.k{color:var(--green)}.ps-kv.d{color:var(--red)}.ps-kv.a{color:var(--cyan)}
-.ps-ksep{font-size:28px;color:var(--b3);margin:0 2px}
-/* ghosted text behind KDA */
-.ps-kda-wrap{position:relative;margin-bottom:18px}
-.ps-kda-ghost{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-family:'Bebas Neue';font-size:100px;letter-spacing:10px;color:rgba(200,155,60,.04);
-  pointer-events:none;white-space:nowrap;user-select:none;
-}
-.ps-kda-meta{display:flex;justify-content:center;align-items:center;gap:12px;position:relative}
-.ps-kda-pill{background:var(--gd);border:1px solid rgba(200,155,60,.2);color:var(--gold);font-size:12px;font-weight:700;padding:3px 12px;border-radius:3px;font-family:'Bebas Neue';letter-spacing:1px}
-.ps-kda-g2{font-size:10px;color:var(--mid);letter-spacing:1px}
-
-/* Win rate */
-.ps-wr-wrap{margin-bottom:22px}
-.ps-wr-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.ps-wr-pct{font-size:14px;font-weight:700}
-.ps-wr-rec{font-size:10px;color:var(--mid)}
-.ps-wr-track{height:5px;background:var(--s4);border-radius:3px;overflow:hidden}
-.ps-wr-fill{height:100%;border-radius:3px;transition:width 1s ease}
-.ps-wr-fill.g{background:linear-gradient(90deg,var(--green),#a5d6a7)}
-.ps-wr-fill.b{background:linear-gradient(90deg,var(--red),#ef9a9a)}
-.ps-wr-fill.m{background:linear-gradient(90deg,var(--mid),var(--b3))}
-
-/* stat 2-col */
-.ps-s2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--b1);border-radius:3px;overflow:hidden;margin-bottom:22px}
-.ps-sc{background:var(--s1);padding:12px 14px}
-.ps-sc.s2f{grid-column:1/-1}
-.ps-sc-l{font-size:9px;letter-spacing:.5px;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
-.ps-sc-v{font-family:'Bebas Neue';font-size:24px;letter-spacing:1px;color:var(--txt)}
-.ps-sc-v.gold{color:var(--gl)}.ps-sc-v.cyan{color:var(--cyan)}.ps-sc-v.grn{color:var(--green)}
-.ps-sc-s{font-size:10px;color:var(--mid);margin-top:1px;letter-spacing:0}
-
-/* Radar */
-.ps-radar-wrap{display:flex;justify-content:center;margin:4px 0 20px}
-svg.radar text{font-family:'Noto Sans KR',sans-serif}
-
-/* add to compare CTA */
-.ps-cta{text-align:center;padding-top:4px}
-.ps-cta-btn{
-  background:var(--gd);border:1px solid rgba(200,155,60,.3);color:var(--gold);
-  padding:9px 24px;font-family:'Noto Sans KR';font-size:10px;letter-spacing:2px;
-  cursor:pointer;border-radius:3px;transition:all .2s;text-transform:uppercase;
-}
-.ps-cta-btn:hover{background:rgba(200,155,60,.22)}
 
 /* ══════════════════════════════════════
    TEAM COMPARE VIEW  (Hextech style)
 ══════════════════════════════════════ */
 #v-compare{flex-direction:row;height:calc(100vh - 54px);overflow:hidden}
 
-/* Blue panel */
 .tc-blue{
   width:260px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);
   display:flex;flex-direction:column;overflow:hidden;
@@ -268,10 +184,9 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 .tc-slots{flex:1;overflow-y:auto;overflow-x:visible;padding:10px;display:flex;flex-direction:column;gap:6px}
 .tc-slots::-webkit-scrollbar{width:2px}.tc-slots::-webkit-scrollbar-thumb{background:var(--b2)}
 
-/* Lane slot card */
 .tc-slot{
   background:var(--s2);border:1px solid var(--b1);border-radius:4px;
-  overflow:visible; /* 드롭다운이 카드 밖으로 나올 수 있도록 */
+  overflow:visible; 
   transition:border-color .2s;cursor:default;
 }
 .tc-slot.empty{cursor:pointer}.tc-slot.empty:hover{border-color:var(--b3)}
@@ -292,7 +207,6 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 .tc-slot-add-btn:hover{border-color:var(--gold);color:var(--gold)}
 .tc-slot-empty-lbl{font-size:10px;color:var(--dim);flex:1}
 
-/* Red side slots mirror */
 .tc-red .tc-slot-top{flex-direction:row-reverse}
 .tc-red .tc-slot-lane-nm{text-align:right}
 .tc-red .tc-slot-player{flex-direction:row-reverse}
@@ -301,11 +215,9 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 .tc-red .tc-slot-empty-body{flex-direction:row-reverse}
 .tc-red .tc-slot-empty-lbl{text-align:right}
 
-/* Center analysis panel */
 .tc-center{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
 .tc-center::-webkit-scrollbar{width:3px}.tc-center::-webkit-scrollbar-thumb{background:var(--b2)}
 
-/* Win prob */
 .tc-prob{background:var(--s1);border:1px solid var(--b1);border-radius:4px;padding:20px 24px}
 .tc-prob-title{font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;text-align:center}
 .tc-prob-nums{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px}
@@ -316,7 +228,6 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 .tc-prob-bar-b{height:100%;background:var(--cyan);transition:width .8s ease;border-radius:4px 0 0 4px}
 .tc-prob-bar-r{height:100%;background:var(--pink);flex:1;border-radius:0 4px 4px 0}
 
-/* Lane matchup (center) */
 .tc-matchup-title{font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .tc-matchup-title::before,.tc-matchup-title::after{content:'';flex:1;height:1px;background:var(--b1)}
 
@@ -331,29 +242,6 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 .tc-mu-icon{font-size:16px}
 .tc-mu-lane-l{font-size:7px;letter-spacing:1px;color:var(--dim);text-transform:uppercase}
 
-.tc-mu-body{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
-.tc-stat-cmp{display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:4px}
-.tc-sv{font-size:11px;font-weight:700}
-.tc-sv.left{text-align:right}.tc-sv.right{text-align:left}
-.tc-sv.win{color:var(--green)}.tc-sv.lose{color:var(--red)}.tc-sv.tie{color:var(--mid)}
-.tc-sl{font-size:8px;color:var(--dim);text-align:center;letter-spacing:1px;text-transform:uppercase}
-.tc-bar-row{display:flex;height:3px;border-radius:2px;overflow:hidden;margin-top:1px;margin-bottom:4px}
-.tc-bar-b{transition:width .6s ease;border-radius:2px 0 0 2px}
-.tc-bar-r{flex:1;border-radius:0 2px 2px 0}
-
-/* Team metrics */
-.tc-metrics{background:var(--s1);border:1px solid var(--b1);border-radius:4px;padding:18px 22px}
-.tc-metrics-title{font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:14px}
-.tc-metric-row{margin-bottom:12px}
-.tc-metric-nums{display:flex;justify-content:space-between;margin-bottom:4px}
-.tc-metric-bv{font-size:11px;font-weight:700;color:var(--cyan)}
-.tc-metric-rv{font-size:11px;font-weight:700;color:var(--pink)}
-.tc-metric-lbl{font-size:9px;color:var(--dim);text-align:center;letter-spacing:1px;text-transform:uppercase}
-.tc-metric-bar{height:4px;border-radius:2px;overflow:hidden;background:var(--s3);display:flex}
-.tc-metric-bar-b{background:var(--cyan);border-radius:2px 0 0 2px;transition:width .7s ease}
-.tc-metric-bar-r{background:var(--pink);flex:1;border-radius:0 2px 2px 0}
-
-/* Inline search in slot */
 .tc-slot-search-wrap{padding:6px 10px 8px;border-top:1px solid var(--b1);position:relative}
 .tc-slot-search-inp{
   width:100%;background:var(--s3);border:1px solid var(--b2);color:var(--txt);
@@ -364,7 +252,6 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 .tc-slot-search-inp:focus{border-color:var(--gold)}
 .tc-slot-search-ico{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dim);pointer-events:none}
 
-/* 드롭다운 — fixed 포지셔닝, JS로 좌표 계산 */
 .tc-slot-dd{
   position:fixed;
   background:#141424;border:1px solid var(--b3);
@@ -388,7 +275,6 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 .tc-slot-dd-wr.m{color:var(--mid)}
 .tc-slot-dd-empty{padding:14px;text-align:center;font-size:11px;color:var(--mid)}
 
-/* Image modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;align-items:center;justify-content:center}
 .modal-bg.show{display:flex;animation:fup .2s ease}
 .modal{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:26px;width:340px;max-width:92vw}
@@ -441,7 +327,6 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 
 <!-- ──────── PLAYER STATS ──────── -->
 <div id="v-players" class="view">
-  <!-- Left roster -->
   <div class="ps-left">
     <div class="ps-left-hd">
       <div class="ps-left-title">Active Roster</div>
@@ -453,14 +338,11 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
     <div class="ps-roster" id="psRoster"></div>
   </div>
 
-  <!-- Right panel: merged stat + radar -->
   <div class="ps-right">
     <div class="ps-merged" id="psMerged">
-      <!-- left: stat detail -->
       <div class="ps-merged-left" id="psDet">
         <div class="ps-no-sel"><div class="ps-no-sel-ico">👈</div>좌측에서 선수를 선택하세요</div>
       </div>
-      <!-- right: radar -->
       <div class="ps-merged-right" id="psRad">
         <div class="ps-no-sel" style="height:100%"><div class="ps-no-sel-ico">🕸</div>선수를 선택하면<br>레이더가 표시됩니다</div>
       </div>
@@ -470,7 +352,6 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
 
 <!-- ──────── TEAM COMPARE ──────── -->
 <div id="v-compare" class="view">
-  <!-- Blue -->
   <div class="tc-blue">
     <div class="tc-team-hd">
       <div class="tc-team-lbl blue">🔵 BLUE TEAM</div>
@@ -479,12 +360,10 @@ svg.radar text{font-family:'Noto Sans KR',sans-serif}
     <div class="tc-slots" id="tcBlueSlots"></div>
   </div>
 
-  <!-- Center -->
   <div class="tc-center" id="tcCenter">
     <div style="text-align:center;color:var(--dim);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:60px 0">선수를 선택하면 분석이 표시됩니다</div>
   </div>
 
-  <!-- Red -->
   <div class="tc-red">
     <div class="tc-team-hd">
       <div class="tc-team-lbl red">RED TEAM 🔴</div>
@@ -545,7 +424,7 @@ function showLoading(){
   ['sg','sp','sk','st'].forEach(id=>{ const el=document.getElementById(id); if(el)el.textContent='—'; });
 }
 function showError(msg){
-  const html=`<div style="grid-column:1/-1;padding:28px;background:#140a0a;border:1px solid #3a1515;border-radius:6px;margin:16px"><div style="font-size:13px;font-weight:700;color:#EF5350;margin-bottom:8px">⚠️ 데이터 로드 실패</div><div style="font-size:11px;color:#886060;line-height:1.8">${msg}</div><ul style="font-size:11px;color:var(--mid);margin-top:12px;padding-left:18px;line-height:2"><li>Apps Script가 <b>웹 앱</b>으로 배포되어 있는지 확인</li><li>액세스 권한이 <b>"모든 사용자"</b>로 설정되어 있는지 확인</li><li>스프레드시트 시트 이름이 올바른지 확인</li></ul></div>`;
+  const html=`<div style="grid-column:1/-1;padding:28px;background:#140a0a;border:1px solid #3a1515;border-radius:6px;margin:16px"><div style="font-size:13px;font-weight:700;color:#EF5350;margin-bottom:8px">⚠️ 데이터 로드 실패</div><div style="font-size:11px;color:#886060;line-height:1.8">${msg}</div><ul style="font-size:11px;color:var(--mid);margin-top:12px;padding-left:18px;line-height:2"><li>Apps Script가 <b>웹 앱</b>으로 배포되어 있는지 확인</li><li>액세스 권한이 <b>"모든 사용자"</b>로 설정되어 있는지 확인</li><li>DB 시트에 <b>"소환사명"</b> 헤더가 존재하는지 확인</li></ul></div>`;
   ['awGrid','psRoster'].forEach(id=>{ const el=document.getElementById(id); if(el)el.innerHTML=html; });
 }
 
@@ -553,13 +432,18 @@ function showError(msg){
 async function loadFromSheets(){
   showLoading();
   try{
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL);
+    // 리다이렉트 및 CORS 이슈 방지를 위해 옵션 추가[cite: 1]
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, { redirect: 'follow' });
     if(!res.ok) throw new Error(`서버 응답 오류: HTTP ${res.status}`);
+    
     const json = await res.json();
     const rows = json.data || json;
-    if(!Array.isArray(rows)||rows.length===0) throw new Error('데이터가 없거나 형식이 올바르지 않습니다.');
+    
+    if(!Array.isArray(rows)||rows.length===0) throw new Error('데이터가 없거나 배열 형식이 아닙니다.');
+    
     const C=CONFIG.COL;
     const g=(row,...keys)=>{ for(const k of keys){ const v=row[k]; if(v!==undefined&&v!==null&&v!=='')return v; } return ''; };
+    
     RAW = rows.map(row=>({
       mid:  String(g(row,C.MID,'매치ID')||''),
       sec:  secFromMMSS(g(row,C.TIME,'게임시간')),
@@ -578,9 +462,15 @@ async function loadFromSheets(){
       ward: n(g(row,C.WARD,'와드설치')),
       note: String(g(row,C.NOTE,'비고')||''),
     })).filter(r=>r.name.trim()!=='');
-    if(RAW.length===0) throw new Error('소환사명 컬럼이 비어 있습니다. 컬럼 이름을 확인해주세요.');
+    
+    if(RAW.length===0) throw new Error('소환사명 컬럼을 찾을 수 없거나 데이터가 비어 있습니다.');
+    
     processAndRender();
-  }catch(e){ console.error(e); showError(e.message); }
+  }catch(e){ 
+    console.error(e); 
+    // 브라우저에 표시되는 에러 메시지 보강
+    showError(e.message + (e.message.includes('fetch') ? '<br><br>* CORS 에러일 확률이 높습니다. Apps Script 배포 시 접근 권한을 "모든 사용자(Anyone)"로 변경해주세요.' : '')); 
+  }
 }
 
 /* ════ TEAM COMPARE GLOBALS ════ */
@@ -826,7 +716,6 @@ function renderPlayerPanel(p){
     </div>
   </div>`;
 
-  /* 사이드바: 순위 카드 */
   document.getElementById('psRad').innerHTML=`
   <div class="ps-merged-right-title">📊 리그 내 순위</div>
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:11px 13px;background:var(--s2);border:1px solid var(--b1);border-radius:5px">
@@ -861,10 +750,7 @@ function renderPlayerPanel(p){
     }).join('')}
   </div>`;
 }
-function renderDetail(p){ renderPlayerPanel(p); }
-function renderRadar(p){}
 
-/* ════ TEAM COMPARE RENDER ════ */
 function renderCmpSlots(){
   ['blue','red'].forEach(team=>{
     const el=document.getElementById(`tc${team[0].toUpperCase()+team.slice(1)}Slots`);
@@ -928,21 +814,13 @@ function pickSlot(team,i,name){
   renderCmpSlots();
 }
 function clearSlot(team,i){ cmpSlots[team][i]=null;_ddEl.style.display='none';renderCmpSlots(); }
-function addToCmp(name){
-  const p=PLAYERS.find(x=>x.name===name);if(!p)return;
-  let placed=false;
-  for(let i=0;i<5;i++){if(!cmpSlots.blue[i]){cmpSlots.blue[i]=p;placed=true;break;}}
-  if(!placed)for(let i=0;i<5;i++){if(!cmpSlots.red[i]){cmpSlots.red[i]=p;placed=true;break;}}
-  if(!placed){alert('슬롯이 가득 찼습니다');return;}
-  renderCmpSlots();
-}
+
 document.addEventListener('mousedown',e=>{
   if(!e.target.closest('.tc-slot-search-wrap')&&!e.target.closest('.tc-slot-dd')){
     _ddEl.style.display='none';_ddTeam=null;_ddIdx=null;
   }
 });
 
-/* ════ RADAR for compare ════ */
 function radarSVG(bP,rP,size=180){
   const maxD={kda:Math.max(...PLAYERS.map(x=>x.kda),1),dpm:Math.max(...PLAYERS.map(x=>x.dpm),1),gpm:Math.max(...PLAYERS.map(x=>x.gpm),1),cspm:Math.max(...PLAYERS.map(x=>x.cspm),1),ai:Math.max(...PLAYERS.map(x=>x.ai),1)};
   const AXES=[{key:'kda',lbl:'KDA'},{key:'dpm',lbl:'DPM'},{key:'gpm',lbl:'GOLD'},{key:'cspm',lbl:'CS/M'},{key:'wr',lbl:'WIN%',max:100},{key:'ai',lbl:'AI'}];
@@ -1014,7 +892,6 @@ function renderCenter(){
     </div>`;
 }
 
-/* ════ VIEW SWITCH ════ */
 function gv(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
@@ -1022,8 +899,6 @@ function gv(id,btn){
   btn.classList.add('on');
 }
 
-/* ════ IMAGE MODAL ════ */
-let mTgt=null,mSrc=null;
 function openModal(name){
   mTgt=name;mSrc=gi(name)||null;
   const pv=document.getElementById('mPrev');
@@ -1054,7 +929,6 @@ function saveImg(){
   renderCmpSlots();renderAwards();
 }
 
-/* ════ PROCESS & RENDER ════ */
 function processAndRender(){
   const pm={};
   RAW.forEach(r=>{
@@ -1088,7 +962,6 @@ function processAndRender(){
     };
   }).sort((a,b)=>b.games-a.games);
 
-  /* Summary bar */
   const mset=new Set(RAW.map(r=>r.mid));
   document.getElementById('sg').textContent=mset.size;
   document.getElementById('sp').textContent=PLAYERS.length;
@@ -1097,7 +970,6 @@ function processAndRender(){
   const avgMin=(RAW.reduce((s,r)=>s+r.sec,0)/RAW.length/60).toFixed(1);
   document.getElementById('st').textContent=avgMin+'분';
 
-  /* Render all views */
   selPlayer=null;
   cmpSlots={blue:Array(5).fill(null),red:Array(5).fill(null)};
   renderAwards();
@@ -1105,7 +977,6 @@ function processAndRender(){
   renderCmpSlots();
 }
 
-/* ════ APP START ════ */
 document.addEventListener('DOMContentLoaded', ()=>loadFromSheets());
 
 </script>
