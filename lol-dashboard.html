@@ -3,357 +3,1436 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LoL 내전 대시보드</title>
+<title>LOL STATS</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#0a0a0a; --surface:#111; --surface2:#1a1a1a; --border:#2a2a2a;
-    --gold:#C89B3C; --gold-light:#F0E6A0; --silver:#A0B4C8; --bronze:#CD7F32;
-    --text:#f0f0f0; --text-dim:#555; --text-mid:#888;
-    --accent:#4FC3F7; --red:#EF5350; --green:#66BB6A;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh}
+:root{
+  --bg:#07070f;--s1:#0d0d1a;--s2:#111120;--s3:#161625;--s4:#1c1c2e;
+  --b1:#1a1a2e;--b2:#22223a;--b3:#2e2e50;
+  --gold:#C89B3C;--gl:#F0E6A0;--gd:rgba(200,155,60,.12);--gb:rgba(200,155,60,.06);
+  --silver:#A0B4C8;--bronze:#CD7F32;
+  --txt:#d8dcee;--dim:#2e2e50;--mid:#5a5a8a;
+  --cyan:#4FC3F7;--cyan2:rgba(79,195,247,.15);
+  --pink:#ef6fa8;--pink2:rgba(239,111,168,.15);
+  --purple:#9c6fff;--red:#EF5350;--green:#66BB6A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--txt);
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:14px;font-weight:400;
+  line-height:1.6;letter-spacing:-.01em; /* 한국어 자간 최적화 */
+  min-height:100vh;overflow-x:hidden;
+  word-break:keep-all; /* 한국어 줄바꿈 */
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.3;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
 
-  header{border-bottom:1px solid var(--border);padding:20px 48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);z-index:100}
-  .logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--gold)}
-  .logo span{color:var(--text)}
-  nav{display:flex;gap:4px}
-  nav button{background:none;border:1px solid transparent;color:var(--text-mid);padding:7px 18px;font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;letter-spacing:1px;transition:all .2s;border-radius:2px}
-  nav button:hover{color:var(--text);border-color:var(--border)}
-  nav button.active{color:var(--gold);border-color:var(--gold);background:rgba(200,155,60,.08)}
-  .refresh-btn{background:var(--gold);color:#000;border:none;padding:9px 22px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s}
-  .refresh-btn:hover{background:var(--gold-light)}
-  .refresh-btn:disabled{opacity:.5;cursor:not-allowed}
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:200;height:54px;
+  background:rgba(7,7,15,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;padding:0 32px;gap:28px;
+}
+.logo{font-family:'Bebas Neue';font-size:19px;letter-spacing:5px;color:var(--gold);display:flex;align-items:center;gap:7px;white-space:nowrap}
+.logo-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pdot 2.5s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.15;transform:scale(.5)}}
+nav{display:flex;flex:1}
+.nb{background:none;border:none;color:var(--mid);padding:0 16px;height:54px;font-family:'Noto Sans KR';font-size:11px;font-weight:500;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:color .2s;position:relative}
+.nb::after{content:'';position:absolute;bottom:0;left:16px;right:16px;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .25s;border-radius:2px 2px 0 0}
+.nb:hover{color:var(--txt)}.nb.on{color:var(--gold)}.nb.on::after{transform:scaleX(1)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-icon{width:32px;height:32px;border-radius:50%;border:1px solid var(--b2);background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:border-color .2s}
+.hdr-icon:hover{border-color:var(--gold)}
 
-  .view{display:none;padding:40px 48px;animation:fadeIn .35s ease}
-  .view.active{display:block}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* ── VIEWS ── */
+.view{display:none;position:relative;z-index:1;animation:fup .3s ease}
+.view.on{display:flex;flex-direction:column}
+@keyframes fup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .section-header{display:flex;align-items:baseline;gap:14px;margin-bottom:32px}
-  .section-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:6px}
-  .section-sub{font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+/* ── PLAYER STATS: merged right panel ── */
+.ps-merged{
+  flex:1;display:grid;
+  grid-template-columns:1fr 340px;
+  overflow:hidden;
+  border-left:1px solid var(--b1);
+}
+.ps-merged-left{overflow-y:auto;padding:28px 32px;border-right:1px solid var(--b1)}
+.ps-merged-left::-webkit-scrollbar{width:3px}.ps-merged-left::-webkit-scrollbar-thumb{background:var(--b2)}
+.ps-merged-right{overflow-y:auto;padding:24px 20px;background:var(--s1)}
+.ps-merged-right::-webkit-scrollbar{width:2px}.ps-merged-right::-webkit-scrollbar-thumb{background:var(--b2)}
+.ps-merged-right-title{font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ps-merged-right-title::after{content:'';flex:1;height:1px;background:var(--b1)}
 
-  .summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:40px}
-  .summary-item{background:var(--surface);border:1px solid var(--border);padding:18px 22px;text-align:center}
-  .summary-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);letter-spacing:2px}
-  .summary-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+/* ══════════════════════════════════════
+   AWARDS VIEW
+══════════════════════════════════════ */
+#v-awards{padding:36px}
+.aw-top{margin-bottom:32px}
+.aw-sup{font-size:9px;letter-spacing:4px;color:var(--mid);text-transform:uppercase;margin-bottom:6px}
+.aw-title{font-family:'Bebas Neue';font-size:44px;letter-spacing:7px;color:var(--gold);display:flex;align-items:center;gap:18px;line-height:1}
+.aw-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--b3),transparent)}
+.aw-sub{font-size:9px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-top:5px}
 
-  .awards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px}
-  .award-card{background:var(--surface);border:1px solid var(--border);padding:26px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
-  .award-card:hover{border-color:var(--gold);transform:translateY(-2px)}
-  .award-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
-  .award-category{font-size:10px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px}
-  .award-title{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
-  .award-sub{font-size:11px;color:var(--text-dim);letter-spacing:1px;margin-bottom:18px}
-  .award-podium{display:flex;flex-direction:column;gap:8px}
-  .podium-row{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--surface2);border-radius:2px;transition:background .2s}
-  .podium-row:hover{background:#222}
-  .rank-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
-  .rank-1{background:var(--gold);color:#000}.rank-2{background:var(--silver);color:#000}.rank-3{background:var(--bronze);color:#fff}
-  .podium-name{flex:1;font-size:13px;font-weight:500}
-  .podium-value{font-size:13px;font-weight:700;color:var(--gold-light)}
-  .podium-unit{font-size:10px;color:var(--text-dim);margin-left:2px}
+.aw-sumbar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--b1);margin-bottom:32px;border-radius:3px;overflow:hidden}
+.aw-si{background:var(--s1);padding:18px 22px;position:relative;overflow:hidden}
+.aw-si::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,155,60,.04),transparent)}
+.aw-si-lbl{font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:7px}
+.aw-si-val{font-family:'Bebas Neue';font-size:34px;letter-spacing:2px;color:var(--txt);line-height:1}
 
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:2px}
-  .player-card{background:var(--surface);border:1px solid var(--border);overflow:hidden;transition:border-color .2s,transform .2s}
-  .player-card:hover{border-color:#444;transform:translateY(-2px)}
-  .player-header{padding:22px 22px 18px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,#111 0%,#1a1612 100%);display:flex;justify-content:space-between;align-items:flex-start}
-  .player-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#7B5A1A);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#000;border:2px solid var(--gold);flex-shrink:0}
-  .player-info{flex:1;margin-left:12px}
-  .player-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;line-height:1}
-  .player-discord{font-size:11px;color:var(--text-dim);margin-top:4px}
-  .player-badges{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
-  .badge{font-size:10px;letter-spacing:1px;padding:2px 7px;border-radius:2px;font-weight:700}
-  .badge-mvp{background:rgba(200,155,60,.2);color:var(--gold);border:1px solid var(--gold)}
-  .badge-ace{background:rgba(239,83,80,.15);color:var(--red);border:1px solid var(--red)}
-  .player-body{padding:16px 20px 20px}
-  .kda-display{display:flex;justify-content:center;align-items:baseline;gap:5px;margin-bottom:4px}
-  .kda-num{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
-  .kda-k{color:var(--green)}.kda-d{color:var(--red)}.kda-a{color:var(--accent)}
-  .kda-sep{color:var(--text-dim);font-size:18px}
-  .kda-ratio{font-size:10px;color:var(--text-dim);text-align:center;margin-bottom:12px;letter-spacing:1px}
-  .winrate-bar-wrap{margin-bottom:14px}
-  .winrate-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-bottom:5px;letter-spacing:1px}
-  .winrate-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-  .winrate-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:2px}
-  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1c1c1c}
-  .stat-row:last-child{border-bottom:none}
-  .stat-label{font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
-  .stat-value{font-size:13px;font-weight:700}
-  .sv-gold{color:var(--gold-light)}.sv-accent{color:var(--accent)}.sv-green{color:var(--green)}
+.aw-heroes{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--b1);margin-bottom:28px;border-radius:3px;overflow:hidden}
+.aw-hc{position:relative;background:var(--s1);overflow:hidden;min-height:190px;display:flex;align-items:flex-end;transition:filter .2s}
+.aw-hc:hover{filter:brightness(1.07)}
+.aw-hc-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0a0a16 0%,#150f00 100%)}
+.aw-hc-pat{position:absolute;inset:0;opacity:.04;background-image:repeating-linear-gradient(45deg,var(--gold) 0,var(--gold) 1px,transparent 0,transparent 50%);background-size:18px 18px}
+.aw-hc-img{position:absolute;right:0;top:0;bottom:0;width:52%;overflow:hidden}
+.aw-hc-img-in{width:100%;height:100%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:64px;color:rgba(200,155,60,.1);position:relative}
+.aw-hc-img-in img{width:100%;height:100%;object-fit:cover;mask-image:linear-gradient(to left,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 50%,transparent 100%);-webkit-mask-image:linear-gradient(to left,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 50%,transparent 100%)}
+.aw-hc-fade{position:absolute;inset:0;background:linear-gradient(to right,var(--s1) 0%,var(--s1) 30%,rgba(13,13,26,.55) 58%,transparent 100%)}
+.aw-hc-body{position:relative;z-index:2;padding:24px 28px;flex:1}
+.aw-hc-tag{display:inline-block;font-size:8px;letter-spacing:3px;font-weight:700;padding:3px 9px;border-radius:2px;margin-bottom:10px;text-transform:uppercase}
+.aw-hc-tag.gold{background:var(--gold);color:#000}.aw-hc-tag.cyan{background:var(--cyan);color:#000}.aw-hc-tag.pur{background:var(--purple);color:#fff}
+.aw-hc-name{font-family:'Bebas Neue';font-size:42px;letter-spacing:3px;color:var(--txt);line-height:1;margin-bottom:6px}
+.aw-hc-desc{font-size:11px;color:var(--mid);line-height:1.6;margin-bottom:14px;max-width:240px}
+.aw-hc-stats{display:flex;gap:18px}
+.aw-hs{display:flex;flex-direction:column;gap:1px}
+.aw-hs-v{font-family:'Bebas Neue';font-size:20px;letter-spacing:1px;color:var(--gold);line-height:1}
+.aw-hs-l{font-size:7px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
 
-  .status-box{text-align:center;padding:80px 0}
-  .spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .status-box p{font-size:13px;color:var(--text-mid);letter-spacing:1px}
-  .error-box{background:#1a0a0a;border:1px solid #3a1a1a;border-radius:4px;padding:20px 24px;margin:20px 0}
-  .error-box p{font-size:13px;color:#ff6b6b;line-height:1.8}
+.aw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--b1);border-radius:3px;overflow:hidden}
+.aw-lc{background:var(--s1);padding:20px 22px;position:relative;transition:background .2s;overflow:hidden}
+.aw-lc:hover{background:var(--s2)}
+.aw-lc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent 55%)}
+.aw-lc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.aw-lc-ico{font-size:15px;opacity:.75;margin-top:1px}
+.aw-lc-t{font-family:'Bebas Neue';font-size:17px;letter-spacing:3px}
+.aw-lc-s{font-size:7px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-top:2px}
+.aw-lrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--b1);position:relative}
+.aw-lrow:last-child{border-bottom:none}
+.aw-lrk{font-family:'Bebas Neue';font-size:20px;width:20px;text-align:center;flex-shrink:0}
+.aw-lrk.g1{color:var(--gold)}.aw-lrk.g2{color:var(--silver)}.aw-lrk.g3{color:var(--bronze)}
+.aw-lav{width:32px;height:32px;border-radius:5px;background:var(--s3);border:1px solid var(--b2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:14px;color:var(--gold);position:relative}
+.aw-lav img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.aw-lmid{flex:1;min-width:0}
+.aw-lnm{font-size:13px;font-weight:600;letter-spacing:0;color:var(--txt)}
+.aw-lbar-t{height:2px;border-radius:1px;margin-top:4px;transition:width .8s ease}
+.aw-lbar-t.g1{background:linear-gradient(90deg,var(--gold),transparent)}
+.aw-lbar-t.g2{background:linear-gradient(90deg,var(--silver),transparent)}
+.aw-lbar-t.g3{background:linear-gradient(90deg,var(--bronze),transparent)}
+.aw-lv{font-family:'Bebas Neue';font-size:18px;letter-spacing:1px;color:var(--gl);flex-shrink:0}
 
-  @media(max-width:768px){
-    header{padding:14px 16px}
-    .view{padding:24px 16px}
-    .summary-bar{grid-template-columns:repeat(2,1fr)}
-    nav button{padding:6px 10px;font-size:11px}
-  }
+/* ══════════════════════════════════════
+   PLAYER STATS VIEW  (Nexus style)
+══════════════════════════════════════ */
+#v-players{flex-direction:row !important;height:calc(100vh - 54px);overflow:hidden}
+
+/* Left roster panel */
+.ps-left{
+  width:280px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.ps-left-hd{padding:14px 16px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.ps-left-title{font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.ps-search{position:relative}
+.ps-search-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--mid);pointer-events:none}
+.ps-search-inp{width:100%;background:var(--s2);border:1px solid var(--b2);color:var(--txt);padding:7px 10px 7px 30px;font-family:'Noto Sans KR';font-size:12px;border-radius:3px;outline:none;transition:border-color .2s}
+.ps-search-inp:focus{border-color:var(--gold)}
+.ps-roster{flex:1;overflow-y:auto}
+.ps-roster::-webkit-scrollbar{width:2px}.ps-roster::-webkit-scrollbar-thumb{background:var(--b3)}
+
+.ps-pitem{
+  display:flex;align-items:center;gap:11px;padding:11px 16px;cursor:pointer;
+  transition:background .15s;border-bottom:1px solid var(--b1);border-left:2px solid transparent;
+  position:relative;
+}
+.ps-pitem:hover{background:var(--s2)}
+.ps-pitem.sel{background:var(--gb);border-left-color:var(--gold)}
+.ps-pav{width:44px;height:44px;border-radius:7px;background:var(--s3);border:1px solid var(--b2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:20px;color:var(--gold);position:relative}
+.ps-pav img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.ps-pav-cam{position:absolute;bottom:1px;right:1px;width:14px;height:14px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;cursor:pointer;border:1px solid var(--bg)}
+.ps-pinfo{flex:1;min-width:0}
+.ps-pname{font-family:'Bebas Neue';font-size:16px;letter-spacing:1px;line-height:1.2}
+.ps-psub{font-size:10px;color:var(--mid);margin-top:2px;letter-spacing:0}
+.ps-pkda{font-size:11px;color:var(--gl);font-weight:600;margin-top:1px;letter-spacing:0}
+.ps-pwr{font-size:10px;font-weight:700;padding:2px 6px;border-radius:2px;flex-shrink:0;letter-spacing:0}
+.wr-g{background:rgba(102,187,106,.14);color:var(--green)}.wr-b{background:rgba(239,83,80,.1);color:var(--red)}.wr-m{background:rgba(90,90,138,.15);color:var(--mid)}
+
+/* Right detail panel */
+.ps-right{flex:1;overflow:hidden;background:var(--s2);display:flex;flex-direction:column}
+
+/* No selection placeholder */
+.ps-no-sel{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);font-size:10px;letter-spacing:2px;text-transform:uppercase;gap:12px;padding:60px;text-align:center}
+.ps-no-sel-ico{font-size:44px;opacity:.2}
+
+/* add to compare CTA */
+.ps-cta-btn{
+  background:var(--gd);border:1px solid rgba(200,155,60,.3);color:var(--gold);
+  padding:8px 20px;font-family:'Noto Sans KR';font-size:10px;letter-spacing:2px;
+  cursor:pointer;border-radius:3px;transition:all .2s;text-transform:uppercase;width:100%;margin-top:14px;
+}
+.ps-cta-btn:hover{background:rgba(200,155,60,.22)}
+.ps-hero{display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:flex-start;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--b1)}
+.ps-hero-av{
+  width:88px;height:88px;border-radius:12px;background:var(--s3);border:1px solid var(--b2);
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue';font-size:40px;color:var(--gold);position:relative;cursor:pointer;
+  transition:border-color .2s;flex-shrink:0;
+}
+.ps-hero-av:hover{border-color:var(--gold)}
+.ps-hero-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.ps-hero-av:hover::after{content:'📷';position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;font-size:26px}
+.ps-hero-meta{}
+.ps-hero-tier{font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ps-hero-tier::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.ps-hero-name{font-family:'Bebas Neue';font-size:38px;letter-spacing:3px;line-height:1;color:var(--txt)}
+.ps-hero-pos{font-size:10px;color:var(--mid);letter-spacing:2px;margin-top:3px;text-transform:uppercase}
+.ps-hero-badges{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.bx{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:2px;font-weight:700}
+.bx-mvp{background:rgba(200,155,60,.2);color:var(--gold);border:1px solid rgba(200,155,60,.3)}
+.bx-ace{background:rgba(239,83,80,.12);color:var(--red);border:1px solid rgba(239,83,80,.25)}
+.ps-hero-right{text-align:right}
+.ps-hero-games{font-family:'Bebas Neue';font-size:44px;color:var(--txt);letter-spacing:2px;line-height:1}
+.ps-hero-glbl{font-size:8px;color:var(--dim);letter-spacing:2px;text-transform:uppercase}
+
+/* KDA big */
+.ps-kda-row{display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:6px}
+.ps-kv{font-family:'Bebas Neue';font-size:48px;letter-spacing:1px;line-height:1}
+.ps-kv.k{color:var(--green)}.ps-kv.d{color:var(--red)}.ps-kv.a{color:var(--cyan)}
+.ps-ksep{font-size:28px;color:var(--b3);margin:0 2px}
+/* ghosted text behind KDA */
+.ps-kda-wrap{position:relative;margin-bottom:18px}
+.ps-kda-ghost{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Bebas Neue';font-size:100px;letter-spacing:10px;color:rgba(200,155,60,.04);
+  pointer-events:none;white-space:nowrap;user-select:none;
+}
+.ps-kda-meta{display:flex;justify-content:center;align-items:center;gap:12px;position:relative}
+.ps-kda-pill{background:var(--gd);border:1px solid rgba(200,155,60,.2);color:var(--gold);font-size:12px;font-weight:700;padding:3px 12px;border-radius:3px;font-family:'Bebas Neue';letter-spacing:1px}
+.ps-kda-g2{font-size:10px;color:var(--mid);letter-spacing:1px}
+
+/* Win rate */
+.ps-wr-wrap{margin-bottom:22px}
+.ps-wr-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ps-wr-pct{font-size:14px;font-weight:700}
+.ps-wr-rec{font-size:10px;color:var(--mid)}
+.ps-wr-track{height:5px;background:var(--s4);border-radius:3px;overflow:hidden}
+.ps-wr-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.ps-wr-fill.g{background:linear-gradient(90deg,var(--green),#a5d6a7)}
+.ps-wr-fill.b{background:linear-gradient(90deg,var(--red),#ef9a9a)}
+.ps-wr-fill.m{background:linear-gradient(90deg,var(--mid),var(--b3))}
+
+/* stat 2-col */
+.ps-s2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--b1);border-radius:3px;overflow:hidden;margin-bottom:22px}
+.ps-sc{background:var(--s1);padding:12px 14px}
+.ps-sc.s2f{grid-column:1/-1}
+.ps-sc-l{font-size:9px;letter-spacing:.5px;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
+.ps-sc-v{font-family:'Bebas Neue';font-size:24px;letter-spacing:1px;color:var(--txt)}
+.ps-sc-v.gold{color:var(--gl)}.ps-sc-v.cyan{color:var(--cyan)}.ps-sc-v.grn{color:var(--green)}
+.ps-sc-s{font-size:10px;color:var(--mid);margin-top:1px;letter-spacing:0}
+
+/* Radar */
+.ps-radar-wrap{display:flex;justify-content:center;margin:4px 0 20px}
+svg.radar text{font-family:'Noto Sans KR',sans-serif}
+
+/* add to compare CTA */
+.ps-cta{text-align:center;padding-top:4px}
+.ps-cta-btn{
+  background:var(--gd);border:1px solid rgba(200,155,60,.3);color:var(--gold);
+  padding:9px 24px;font-family:'Noto Sans KR';font-size:10px;letter-spacing:2px;
+  cursor:pointer;border-radius:3px;transition:all .2s;text-transform:uppercase;
+}
+.ps-cta-btn:hover{background:rgba(200,155,60,.22)}
+
+/* ══════════════════════════════════════
+   TEAM COMPARE VIEW  (Hextech style)
+══════════════════════════════════════ */
+#v-compare{flex-direction:row;height:calc(100vh - 54px);overflow:hidden}
+
+/* Blue panel */
+.tc-blue{
+  width:260px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.tc-red{
+  width:260px;flex-shrink:0;background:var(--s1);border-left:1px solid var(--b1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+
+.tc-team-hd{padding:14px 16px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.tc-team-lbl{font-family:'Bebas Neue';font-size:13px;letter-spacing:3px;margin-bottom:2px}
+.tc-team-lbl.blue{color:#64B5F6}.tc-team-lbl.red{color:#EF9A9A}
+.tc-team-sub{font-size:8px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+
+.tc-slots{flex:1;overflow-y:auto;overflow-x:visible;padding:10px;display:flex;flex-direction:column;gap:6px}
+.tc-slots::-webkit-scrollbar{width:2px}.tc-slots::-webkit-scrollbar-thumb{background:var(--b2)}
+
+/* Lane slot card */
+.tc-slot{
+  background:var(--s2);border:1px solid var(--b1);border-radius:4px;
+  overflow:visible; /* 드롭다운이 카드 밖으로 나올 수 있도록 */
+  transition:border-color .2s;cursor:default;
+}
+.tc-slot.empty{cursor:pointer}.tc-slot.empty:hover{border-color:var(--b3)}
+.tc-slot-top{display:flex;align-items:center;gap:8px;padding:8px 10px}
+.tc-slot-lane{font-size:13px;flex-shrink:0}
+.tc-slot-lane-nm{font-size:10px;letter-spacing:.5px;color:var(--mid);text-transform:uppercase;flex:1;font-weight:500}
+.tc-slot-clear{background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:2px;transition:color .2s;line-height:1}
+.tc-slot-clear:hover{color:var(--red)}
+
+.tc-slot-player{display:flex;align-items:center;gap:8px;padding:9px 10px;border-top:1px solid var(--b1)}
+.tc-slot-av{width:34px;height:34px;border-radius:5px;background:var(--s3);border:1px solid var(--b2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:15px;color:var(--gold);position:relative}
+.tc-slot-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.tc-slot-pname{font-size:13px;font-weight:700;letter-spacing:0;flex:1;color:var(--txt)}
+.tc-slot-stat{font-size:10px;color:var(--mid);letter-spacing:0;margin-top:1px}
+
+.tc-slot-empty-body{padding:8px 10px;border-top:1px solid var(--b1);display:flex;align-items:center;gap:8px}
+.tc-slot-add-btn{background:var(--b1);border:1px solid var(--b2);color:var(--mid);padding:4px 10px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:2px;transition:all .2s}
+.tc-slot-add-btn:hover{border-color:var(--gold);color:var(--gold)}
+.tc-slot-empty-lbl{font-size:10px;color:var(--dim);flex:1}
+
+/* Red side slots mirror */
+.tc-red .tc-slot-top{flex-direction:row-reverse}
+.tc-red .tc-slot-lane-nm{text-align:right}
+.tc-red .tc-slot-player{flex-direction:row-reverse}
+.tc-red .tc-slot-pname{text-align:right}
+.tc-red .tc-slot-stat{text-align:right}
+.tc-red .tc-slot-empty-body{flex-direction:row-reverse}
+.tc-red .tc-slot-empty-lbl{text-align:right}
+
+/* Center analysis panel */
+.tc-center{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+.tc-center::-webkit-scrollbar{width:3px}.tc-center::-webkit-scrollbar-thumb{background:var(--b2)}
+
+/* Win prob */
+.tc-prob{background:var(--s1);border:1px solid var(--b1);border-radius:4px;padding:20px 24px}
+.tc-prob-title{font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;text-align:center}
+.tc-prob-nums{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px}
+.tc-prob-pct{font-family:'Bebas Neue';font-size:52px;letter-spacing:2px;line-height:1}
+.tc-prob-pct.blue{color:var(--cyan)}.tc-prob-pct.red{color:var(--pink)}
+.tc-prob-lbl{font-size:8px;letter-spacing:2px;color:var(--mid);text-transform:uppercase;margin-bottom:6px}
+.tc-prob-bar{height:8px;border-radius:4px;overflow:hidden;background:var(--s3);display:flex}
+.tc-prob-bar-b{height:100%;background:var(--cyan);transition:width .8s ease;border-radius:4px 0 0 4px}
+.tc-prob-bar-r{height:100%;background:var(--pink);flex:1;border-radius:0 4px 4px 0}
+
+/* Lane matchup (center) */
+.tc-matchup-title{font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.tc-matchup-title::before,.tc-matchup-title::after{content:'';flex:1;height:1px;background:var(--b1)}
+
+.tc-lane-mu{background:var(--s1);border:1px solid var(--b1);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.tc-mu-hd{display:grid;grid-template-columns:1fr 48px 1fr;align-items:center;padding:10px 14px;gap:6px;border-bottom:1px solid var(--b1)}
+.tc-mu-bp{display:flex;align-items:center;gap:8px}
+.tc-mu-rp{display:flex;align-items:center;gap:8px;flex-direction:row-reverse}
+.tc-mu-av{width:32px;height:32px;border-radius:5px;background:var(--s3);border:1px solid var(--b2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:14px;color:var(--gold);position:relative}
+.tc-mu-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.tc-mu-nm{font-family:'Bebas Neue';font-size:15px;letter-spacing:1px}
+.tc-mu-center{text-align:center}
+.tc-mu-icon{font-size:16px}
+.tc-mu-lane-l{font-size:7px;letter-spacing:1px;color:var(--dim);text-transform:uppercase}
+
+.tc-mu-body{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.tc-stat-cmp{display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:4px}
+.tc-sv{font-size:11px;font-weight:700}
+.tc-sv.left{text-align:right}.tc-sv.right{text-align:left}
+.tc-sv.win{color:var(--green)}.tc-sv.lose{color:var(--red)}.tc-sv.tie{color:var(--mid)}
+.tc-sl{font-size:8px;color:var(--dim);text-align:center;letter-spacing:1px;text-transform:uppercase}
+.tc-bar-row{display:flex;height:3px;border-radius:2px;overflow:hidden;margin-top:1px;margin-bottom:4px}
+.tc-bar-b{transition:width .6s ease;border-radius:2px 0 0 2px}
+.tc-bar-r{flex:1;border-radius:0 2px 2px 0}
+
+/* Team metrics */
+.tc-metrics{background:var(--s1);border:1px solid var(--b1);border-radius:4px;padding:18px 22px}
+.tc-metrics-title{font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:14px}
+.tc-metric-row{margin-bottom:12px}
+.tc-metric-nums{display:flex;justify-content:space-between;margin-bottom:4px}
+.tc-metric-bv{font-size:11px;font-weight:700;color:var(--cyan)}
+.tc-metric-rv{font-size:11px;font-weight:700;color:var(--pink)}
+.tc-metric-lbl{font-size:9px;color:var(--dim);text-align:center;letter-spacing:1px;text-transform:uppercase}
+.tc-metric-bar{height:4px;border-radius:2px;overflow:hidden;background:var(--s3);display:flex}
+.tc-metric-bar-b{background:var(--cyan);border-radius:2px 0 0 2px;transition:width .7s ease}
+.tc-metric-bar-r{background:var(--pink);flex:1;border-radius:0 2px 2px 0}
+
+/* Inline search in slot */
+.tc-slot-search-wrap{padding:6px 10px 8px;border-top:1px solid var(--b1);position:relative}
+.tc-slot-search-inp{
+  width:100%;background:var(--s3);border:1px solid var(--b2);color:var(--txt);
+  padding:7px 10px 7px 28px;font-family:'Noto Sans KR';font-size:12px;font-weight:400;
+  border-radius:3px;outline:none;transition:border-color .2s;letter-spacing:0;
+}
+.tc-slot-search-inp::placeholder{color:var(--mid);font-size:11px}
+.tc-slot-search-inp:focus{border-color:var(--gold)}
+.tc-slot-search-ico{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dim);pointer-events:none}
+
+/* 드롭다운 — fixed 포지셔닝, JS로 좌표 계산 */
+.tc-slot-dd{
+  position:fixed;
+  background:#141424;border:1px solid var(--b3);
+  border-radius:5px;z-index:9999;width:220px;max-height:220px;overflow-y:auto;
+  box-shadow:0 8px 28px rgba(0,0,0,.8);
+}
+.tc-slot-dd::-webkit-scrollbar{width:3px}.tc-slot-dd::-webkit-scrollbar-thumb{background:var(--b3)}
+.tc-slot-dd-item{
+  display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;
+  transition:background .12s;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.tc-slot-dd-item:last-child{border-bottom:none}
+.tc-slot-dd-item:hover{background:rgba(200,155,60,.1)}
+.tc-slot-dd-av{width:26px;height:26px;border-radius:4px;background:var(--s3);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:12px;color:var(--gold);position:relative}
+.tc-slot-dd-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.tc-slot-dd-name{font-size:13px;font-weight:600;color:var(--txt);letter-spacing:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-slot-dd-sub{font-size:10px;color:var(--mid);margin-top:1px;letter-spacing:0}
+.tc-slot-dd-wr{font-size:10px;font-weight:700;flex-shrink:0;padding:1px 5px;border-radius:2px}
+.tc-slot-dd-wr.g{background:rgba(102,187,106,.15);color:var(--green)}
+.tc-slot-dd-wr.b{background:rgba(239,83,80,.12);color:var(--red)}
+.tc-slot-dd-wr.m{color:var(--mid)}
+.tc-slot-dd-empty{padding:14px;text-align:center;font-size:11px;color:var(--mid)}
+
+/* Image modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex;animation:fup .2s ease}
+.modal{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:26px;width:340px;max-width:92vw}
+.modal-title{font-family:'Bebas Neue';font-size:18px;letter-spacing:3px;margin-bottom:18px}
+.modal-prev{width:72px;height:72px;border-radius:10px;background:var(--s3);border:1px solid var(--b2);margin:0 auto 18px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:30px;color:var(--gold);position:relative}
+.modal-prev img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.mi{width:100%;background:var(--s3);border:1px solid var(--b1);color:var(--txt);padding:8px 11px;font-family:'Noto Sans KR';font-size:12px;border-radius:3px;outline:none;margin-bottom:8px;transition:border-color .2s}
+.mi:focus{border-color:var(--gold)}
+.mact{display:flex;gap:8px;margin-top:14px}
+.mbtn{flex:1;padding:9px;border:none;border-radius:3px;font-family:'Noto Sans KR';font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.mbtn-c{background:var(--s4);color:var(--mid)}.mbtn-c:hover{color:var(--txt)}
+.mbtn-s{background:var(--gold);color:#000}.mbtn-s:hover{background:var(--gl)}
+
+@media(max-width:1100px){
+  .tc-blue,.tc-red{width:210px}
+  .ps-left{width:240px}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">LOL<span>STATS</span></div>
+  <div class="logo"><div class="logo-dot"></div>LOLSTATS</div>
   <nav>
-    <button class="active" onclick="switchView('awards',this)">🏆 어워즈</button>
-    <button onclick="switchView('players',this)">📊 선수 스탯</button>
+    <button class="nb on"  onclick="gv('awards',this)">Awards</button>
+    <button class="nb"     onclick="gv('players',this)">Player Stats</button>
+    <button class="nb"     onclick="gv('compare',this)">Team Compare</button>
   </nav>
-  <button class="refresh-btn" id="refreshBtn" onclick="loadData()">↻ 데이터 갱신</button>
+  <div class="hdr-right">
+    <div class="hdr-icon" title="데이터 새로고침" onclick="loadFromSheets()">↻</div>
+  </div>
 </header>
 
-<div id="awards" class="view active">
-  <div class="section-header">
-    <div class="section-title">SEASON AWARDS</div>
-    <div class="section-sub">내전 부문별 타이틀 홀더</div>
+<!-- ──────── AWARDS ──────── -->
+<div id="v-awards" class="view on" style="padding:36px">
+  <div class="aw-top">
+    <div class="aw-sup">내전 시즌 리포트 · 2025 SPLIT 1</div>
+    <div class="aw-title">SEASON HALL OF FAME</div>
+    <div class="aw-sub">LEAGUE OF LEGENDS INHOUSE CIRCUIT &nbsp;|&nbsp; GLOBAL STATS HUB</div>
   </div>
-  <div class="summary-bar">
-    <div class="summary-item"><div class="summary-num" id="s-games">-</div><div class="summary-label">총 게임 수</div></div>
-    <div class="summary-item"><div class="summary-num" id="s-players">-</div><div class="summary-label">참가 선수</div></div>
-    <div class="summary-item"><div class="summary-num" id="s-kda">-</div><div class="summary-label">평균 KDA</div></div>
-    <div class="summary-item"><div class="summary-num" id="s-gametime">-</div><div class="summary-label">평균 게임 시간</div></div>
+  <div class="aw-sumbar">
+    <div class="aw-si"><div class="aw-si-lbl">Total Games</div><div class="aw-si-val" id="sg">-</div></div>
+    <div class="aw-si"><div class="aw-si-lbl">Total Players</div><div class="aw-si-val" id="sp">-</div></div>
+    <div class="aw-si"><div class="aw-si-lbl">AVG KDA</div><div class="aw-si-val" id="sk">-</div></div>
+    <div class="aw-si"><div class="aw-si-lbl">AVG Game Time</div><div class="aw-si-val" id="st">-</div></div>
   </div>
-  <div id="awardsContent"><div class="status-box"><div class="spinner"></div><p>데이터 불러오는 중...</p></div></div>
+  <div class="aw-heroes" id="awHeroes"></div>
+  <div class="aw-grid"   id="awGrid"></div>
 </div>
 
-<div id="players" class="view">
-  <div class="section-header">
-    <div class="section-title">PLAYER STATS</div>
-    <div class="section-sub">개인별 상세 스탯 프로필</div>
+<!-- ──────── PLAYER STATS ──────── -->
+<div id="v-players" class="view">
+  <!-- Left roster -->
+  <div class="ps-left">
+    <div class="ps-left-hd">
+      <div class="ps-left-title">Active Roster</div>
+      <div class="ps-search">
+        <span class="ps-search-ico">🔍</span>
+        <input class="ps-search-inp" id="psSearch" placeholder="선수 검색..." oninput="filterPS(this.value)">
+      </div>
+    </div>
+    <div class="ps-roster" id="psRoster"></div>
   </div>
-  <div id="playersContent"><div class="status-box"><div class="spinner"></div><p>데이터 불러오는 중...</p></div></div>
+
+  <!-- Right panel: merged stat + radar -->
+  <div class="ps-right">
+    <div class="ps-merged" id="psMerged">
+      <!-- left: stat detail -->
+      <div class="ps-merged-left" id="psDet">
+        <div class="ps-no-sel"><div class="ps-no-sel-ico">👈</div>좌측에서 선수를 선택하세요</div>
+      </div>
+      <!-- right: radar -->
+      <div class="ps-merged-right" id="psRad">
+        <div class="ps-no-sel" style="height:100%"><div class="ps-no-sel-ico">🕸</div>선수를 선택하면<br>레이더가 표시됩니다</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────── TEAM COMPARE ──────── -->
+<div id="v-compare" class="view">
+  <!-- Blue -->
+  <div class="tc-blue">
+    <div class="tc-team-hd">
+      <div class="tc-team-lbl blue">🔵 BLUE TEAM</div>
+      <div class="tc-team-sub">라인별 선수 선택</div>
+    </div>
+    <div class="tc-slots" id="tcBlueSlots"></div>
+  </div>
+
+  <!-- Center -->
+  <div class="tc-center" id="tcCenter">
+    <div style="text-align:center;color:var(--dim);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:60px 0">선수를 선택하면 분석이 표시됩니다</div>
+  </div>
+
+  <!-- Red -->
+  <div class="tc-red">
+    <div class="tc-team-hd">
+      <div class="tc-team-lbl red">RED TEAM 🔴</div>
+      <div class="tc-team-sub" style="text-align:right">라인별 선수 선택</div>
+    </div>
+    <div class="tc-slots" id="tcRedSlots"></div>
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal-bg" id="imgModal" onclick="closeModalOut(event)">
+  <div class="modal">
+    <div class="modal-title">선수 이미지 설정</div>
+    <div class="modal-prev" id="mPrev"></div>
+    <input class="mi" id="mUrl" type="text" placeholder="이미지 URL (https://...)" oninput="prevUrl()">
+    <input class="mi" id="mFile" type="file" accept="image/*" onchange="prevFile(event)" style="padding:5px">
+    <div class="mact">
+      <button class="mbtn mbtn-c" onclick="closeModal()">취소</button>
+      <button class="mbtn mbtn-s" onclick="saveImg()">저장</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ★ Apps Script 웹앱 URL */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzhzIUs08gz6kzLqyeiwrBiKDWePoAMl8cMfVh23R0c5d24s6tpmGc7dm8Y92XSYZXY/exec';
 
-function n(v){
-  if(v===null||v===undefined||v==='') return 0;
-  if(typeof v==='number') return v;
-  return parseFloat(v.toString().replace(/,/g,''))||0;
-}
-function s(v){return(v===null||v===undefined)?'':v.toString().trim();}
+/* ════════════════════════════════════════════
+   ⚙️  CONFIG — Apps Script URL만 확인하면 됩니다
+════════════════════════════════════════════ */
+const CONFIG = {
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzhzIUs08gz6kzLqyeiwrBiKDWePoAMl8cMfVh23R0c5d24s6tpmGc7dm8Y92XSYZXY/exec',
 
-async function loadData(){
-  const btn=document.getElementById('refreshBtn');
-  btn.disabled=true; btn.textContent='↻ 로딩 중...';
-  const loading='<div class="status-box"><div class="spinner"></div><p>데이터 불러오는 중...</p></div>';
-  document.getElementById('awardsContent').innerHTML=loading;
-  document.getElementById('playersContent').innerHTML=loading;
+  /* 컬럼 매핑 — Apps Script가 반환하는 key 이름과 다를 경우 여기서 수정 */
+  COL: {
+    MID:  '매치ID',
+    TIME: '게임시간',
+    DISC: '디스코드ID',
+    NAME: '소환사명',
+    POS:  '포지션',
+    AI:   'AI스코어',
+    WIN:  '승패',
+    K:    'K', D: 'D', A: 'A',
+    SK:   '솔로킬',
+    DMG:  '총딜량',
+    DPM:  '분당딜(DPM)',
+    RDMG: '받은피해',
+    CS:   '총CS',
+    GPM:  '분당골드(GPM)',
+    WARD: '와드설치',
+    NOTE: '비고',
+  }
+};
 
-  try{
-    const res=await fetch(API_URL);
-    if(!res.ok) throw new Error(`서버 오류: ${res.status}`);
-    const json=await res.json();
-    if(!json.data||json.data.length===0) throw new Error('데이터가 없습니다.');
-    processAndRender(json.data);
-  }catch(e){
-    const err=`<div class="error-box">
-      <p>⚠️ ${e.message}</p>
-      <p style="color:#666;font-size:12px;margin-top:8px">
-        Apps Script 배포 설정을 확인해주세요.<br>
-        액세스 권한이 "모든 사용자"로 설정되어 있어야 합니다.
-      </p>
+/* ════ 유틸 ════ */
+function n(v){ if(v===null||v===undefined||v==='')return 0; const s=v.toString().replace(/,/g,''); return parseFloat(s)||0; }
+function secFromMMSS(v){ if(!v)return 0; const p=v.toString().split(':'); if(p.length===2)return parseInt(p[0])*60+parseInt(p[1]); return n(v); }
+
+/* ════ 로딩/에러 UI ════ */
+function showLoading(){
+  ['awHeroes','awGrid'].forEach(id=>{ const el=document.getElementById(id); if(el)el.innerHTML=''; });
+  document.getElementById('sg').textContent='—';
+  document.getElementById('sp').textContent='—';
+  document.getElementById('sk').textContent='—';
+  document.getElementById('st').textContent='—';
+  const loadHTML=`
+    <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:16px">
+      <div style="width:36px;height:36px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div>
+      <div style="font-size:11px;color:var(--mid);letter-spacing:2px">데이터 불러오는 중...</div>
     </div>`;
-    document.getElementById('awardsContent').innerHTML=err;
-    document.getElementById('playersContent').innerHTML=err;
-  }finally{
-    btn.disabled=false; btn.textContent='↻ 데이터 갱신';
+  document.getElementById('awGrid').innerHTML=loadHTML;
+  document.getElementById('psRoster').innerHTML=loadHTML;
+}
+function showError(msg){
+  const errHTML=`
+    <div style="grid-column:1/-1;padding:32px;background:#140a0a;border:1px solid #3a1515;border-radius:6px;margin:16px">
+      <div style="font-size:13px;font-weight:700;color:#EF5350;margin-bottom:8px">⚠️ 데이터 로드 실패</div>
+      <div style="font-size:11px;color:#886060;line-height:1.8;word-break:break-all">${msg}</div>
+      <div style="margin-top:16px;font-size:11px;color:var(--mid)">아래 체크리스트를 확인해주세요:</div>
+      <ul style="font-size:11px;color:var(--mid);margin-top:8px;padding-left:20px;line-height:2">
+        <li>CONFIG.SHEET_ID 가 올바른지 확인</li>
+        <li>CONFIG.SHEET_NAME 이 시트 탭 이름과 일치하는지 확인</li>
+        <li>스프레드시트가 <b style="color:var(--txt)">링크 있는 사용자 누구나 볼 수 있음</b>으로 공유됐는지 확인</li>
+        <li>Google Apps Script가 배포되어 있고 URL이 맞는지 확인</li>
+      </ul>
+    </div>`;
+  document.getElementById('awGrid').innerHTML=errHTML;
+  document.getElementById('psRoster').innerHTML=errHTML;
+}
+
+/* ════ Google Sheets 데이터 fetch ════
+   Google Sheets를 직접 JSON으로 읽는 방법:
+   공개 스프레드시트라면 gviz API로 바로 가져올 수 있습니다.
+   (Apps Script 없이도 동작)
+════ */
+let RAW = [];
+
+async function loadFromSheets(){
+  showLoading();
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL);
+    if(!res.ok) throw new Error(`서버 응답 오류: HTTP ${res.status}`);
+    const json = await res.json();
+
+    // Apps Script가 {data: [...rows...]} 형태로 반환한다고 가정
+    // 각 row는 { 매치ID, 게임시간, 디스코드ID, 소환사명, ... } 형태의 객체
+    const rows = json.data || json;
+    if(!Array.isArray(rows) || rows.length === 0)
+      throw new Error('데이터가 없거나 형식이 올바르지 않습니다.');
+
+    const C = CONFIG.COL;
+    // 컬럼명 alias 처리 (여러 가능한 헤더명 대응)
+    const g = (row, ...keys) => {
+      for(const k of keys){
+        const v = row[k];
+        if(v !== undefined && v !== null && v !== '') return v;
+      }
+      return '';
+    };
+
+    RAW = rows.map(row => ({
+      mid:  String(g(row, C.MID,  '매치ID', 'matchId')||''),
+      sec:  secFromMMSS(g(row, C.TIME, '게임시간', 'gametime', 'time')),
+      disc: String(g(row, C.DISC, '디스코드ID', 'discord')||g(row, C.NAME, '소환사명',  'name')||''),
+      name: String(g(row, C.NAME, '소환사명',   'name')||''),
+      pos:  String(g(row, C.POS,  '포지션',     'position', 'pos')||''),
+      ai:   n(g(row, C.AI,   'AI스코어', 'ai')),
+      win:  String(g(row, C.WIN,  '승패',       'win')||''),
+      k:    n(g(row, C.K,    'K', 'kills')),
+      d:    n(g(row, C.D,    'D', 'deaths')),
+      a:    n(g(row, C.A,    'A', 'assists')),
+      sk:   n(g(row, C.SK,   '솔로킬',    'soloKills')),
+      tdmg: n(g(row, C.DMG,  '총딜량',    'totalDmg')),
+      dpm:  n(g(row, C.DPM,  '분당딜(DPM)', '분당딜', 'dpm')),
+      rdmg: n(g(row, C.RDMG, '받은피해',  'receivedDmg')),
+      cs:   n(g(row, C.CS,   '총CS',      'cs')),
+      gpm:  n(g(row, C.GPM,  '분당골드(GPM)', '분당골드', 'gpm')),
+      ward: n(g(row, C.WARD, '와드설치',  'ward')),
+      note: String(g(row, C.NOTE, '비고', 'note')||''),
+    })).filter(r => r.name.trim() !== '');
+
+    if(RAW.length === 0)
+      throw new Error('소환사명이 비어있습니다. Apps Script 응답을 확인해주세요.');
+
+    processAndRender();
+  } catch(e){
+    console.error(e);
+    showError(e.message);
   }
 }
 
-function processAndRender(data){
-  const matchIds=[...new Set(data.map(r=>s(r['매치ID'])).filter(Boolean))];
-
-  /* 선수별 집계 */
-  const pm={};
-  data.forEach(r=>{
-    const name=s(r['소환사명']);
-    if(!name) return;
-    const discord=s(r['디스코드ID'])||name;
-    if(!pm[name]) pm[name]={name,discord,games:0,wins:0,kills:0,deaths:0,assists:0,
-      totalDmg:0,dpmSum:0,gpmSum:0,totalCS:0,gameSec:0,
-      receivedDmg:0,soloKills:0,wardsPlaced:0,aiScoreSum:0,
-      mvp:0,ace:0,dmgShareSum:0,dmgShareCnt:0};
-    const p=pm[name];
-    p.games++;
-    const win=s(r['승패']);
-    if(win==='승리'||win==='승') p.wins++;
-    p.kills      +=n(r['K']);
-    p.deaths     +=n(r['D']);
-    p.assists    +=n(r['A']);
-    p.totalDmg   +=n(r['총딜량']);
-    p.dpmSum     +=n(r['분당딜(DPM)'])||n(r['분당딜'])||n(r['DPM']);
-    p.gpmSum     +=n(r['분당골드(GPM)'])||n(r['분당골드'])||n(r['GPM']);
-    p.totalCS    +=n(r['총CS']);
-    p.gameSec    +=n(r['게임시간']);
-    p.receivedDmg+=n(r['받은피해']);
-    p.soloKills  +=n(r['솔로킬']);
-    p.wardsPlaced+=n(r['와드설치']);
-    p.aiScoreSum +=n(r['AI스코어']);
-    const note=s(r['비고']).toUpperCase();
-    if(note.includes('MVP')) p.mvp++;
-    if(note.includes('ACE')) p.ace++;
+/* ════ PROCESS & RENDER ════ */
+let PLAYERS = [];
+function processAndRender(){
+const pm={};
+RAW.forEach(r=>{
+  if(!pm[r.name])pm[r.name]={name:r.name,disc:r.disc,pos:r.pos,games:0,wins:0,k:0,d:0,a:0,sk:0,tdmg:0,dpm:0,rdmg:0,cs:0,sec:0,gpm:0,ward:0,ai:0,mvp:0,ace:0,dss:0,dsc:0};
+  const p=pm[r.name];p.games++;if(r.win==='승')p.wins++;
+  p.k+=r.k;p.d+=r.d;p.a+=r.a;p.sk+=r.sk;p.tdmg+=r.tdmg;p.dpm+=r.dpm;
+  p.rdmg+=r.rdmg;p.cs+=r.cs;p.sec+=r.sec;p.gpm+=r.gpm;p.ward+=r.ward;p.ai+=r.ai;
+  if(r.note.includes('MVP'))p.mvp++;if(r.note.includes('ACE'))p.ace++;
+});
+const byMatch={};RAW.forEach(r=>{if(!byMatch[r.mid])byMatch[r.mid]=[];byMatch[r.mid].push(r);});
+Object.values(byMatch).forEach(m=>{
+  ['승','패'].forEach(side=>{
+    const t=m.filter(r=>r.win===side);const tot=t.reduce((s,r)=>s+r.tdmg,0);if(!tot)return;
+    t.forEach(r=>{pm[r.name].dss+=(r.tdmg/tot)*100;pm[r.name].dsc++;});
   });
+});
+PLAYERS=Object.values(pm).map(p=>{
+  const gm=p.games,gmin=p.sec/60;
+  const kda=p.d===0?(p.k+p.a):+((p.k+p.a)/p.d).toFixed(2);
+  return{
+    name:p.name,disc:p.disc,pos:p.pos,games:gm,wins:p.wins,
+    k:+(p.k/gm).toFixed(1),d:+(p.d/gm).toFixed(1),a:+(p.a/gm).toFixed(1),
+    kda:typeof kda==='number'?kda:parseFloat(kda),
+    totalK:p.k,totalA:p.a,
+    dpm:Math.round(p.dpm/gm),gpm:Math.round(p.gpm/gm),
+    cspm:+(p.cs/gmin).toFixed(1),
+    dmgShare:p.dsc?+(p.dss/p.dsc).toFixed(1):0,
+    rdmg:Math.round(p.rdmg/gm),sk:p.sk,ward:p.ward,
+    ai:+(p.ai/gm).toFixed(1),mvp:p.mvp,ace:p.ace,
+    wr:Math.round(p.wins/gm*100),
+  };
+}).sort((a,b)=>b.games-a.games);
 
-  /* 팀 딜 비중 */
-  const mg={};
-  data.forEach(r=>{
-    const mid=s(r['매치ID']);
-    if(!mg[mid]) mg[mid]=[];
-    mg[mid].push(r);
-  });
-  Object.values(mg).forEach(match=>{
-    const tw=match.filter(r=>{const w=s(r['승패']);return w==='승리'||w==='승';});
-    const tl=match.filter(r=>{const w=s(r['승패']);return w==='패배'||w==='패';});
-    [tw,tl].forEach(team=>{
-      if(!team.length) return;
-      const tot=team.reduce((s,r)=>s+n(r['총딜량']),0);
-      if(!tot) return;
-      team.forEach(r=>{
-        const name=s(r['소환사명']);
-        if(pm[name]){pm[name].dmgShareSum+=(n(r['총딜량'])/tot)*100;pm[name].dmgShareCnt++;}
-      });
-    });
-  });
+const mset=new Set(RAW.map(r=>r.mid));
+document.getElementById('sg').textContent=mset.size;
+document.getElementById('sp').textContent=PLAYERS.length;
+const avgKDA=(RAW.reduce((s,r)=>{const d=r.d;return s+(d===0?r.k+r.a:(r.k+r.a)/d)},0)/RAW.length).toFixed(1);
+document.getElementById('sk').textContent=avgKDA;
+const avgMin=(RAW.reduce((s,r)=>s+r.sec,0)/RAW.length/60).toFixed(1);
+document.getElementById('st').textContent=avgMin+'분';
 
-  /* 최종 스탯 */
-  const players=Object.values(pm).map(p=>{
-    const gm=p.games||1;
-    const gmin=(p.gameSec||60)/60;
-    return{
-      name:p.name,discord:p.discord,games:p.games,wins:p.wins,
-      kills:+(p.kills/gm).toFixed(1),
-      deaths:+(p.deaths/gm).toFixed(1),
-      assists:+(p.assists/gm).toFixed(1),
-      kdaRatio:p.deaths===0?+(p.kills+p.assists).toFixed(1):+((p.kills+p.assists)/p.deaths).toFixed(2),
-      totalKills:p.kills,
-      totalAssists:p.assists,
-      dpm:Math.round(p.dpmSum/gm),
-      gpm:Math.round(p.gpmSum/gm),
-      cspm:+(p.totalCS/gmin).toFixed(1),
-      dmgShare:p.dmgShareCnt>0?+(p.dmgShareSum/p.dmgShareCnt).toFixed(1):0,
-      receivedDmg:Math.round(p.receivedDmg/gm),
-      soloKills:p.soloKills,
-      wardsPlaced:p.wardsPlaced,
-      aiScore:+(p.aiScoreSum/gm).toFixed(1),
-      mvp:p.mvp,ace:p.ace,
-    };
-  });
+  /* ── render all views ── */
+  renderAwards();
+  renderRoster(PLAYERS);
+  renderCmpSlots();
+} /* end processAndRender */
 
-  /* 요약 */
-  const allRows=data.length||1;
-  const avgKDA=data.reduce((sum,r)=>{
-    const d=n(r['D']);return sum+(d===0?n(r['K'])+n(r['A']):(n(r['K'])+n(r['A']))/d);
-  },0)/allRows;
-  const avgMin=data.reduce((sum,r)=>sum+n(r['게임시간']),0)/allRows/60;
-
-  document.getElementById('s-games').textContent   =matchIds.length;
-  document.getElementById('s-players').textContent =players.length;
-  document.getElementById('s-kda').textContent     =avgKDA.toFixed(1);
-  document.getElementById('s-gametime').textContent=avgMin.toFixed(1)+'분';
-
-  renderAwards(players);
-  renderPlayers(players);
+/* ════ IMAGES ════ */
+let imgs=JSON.parse(localStorage.getItem('lol_imgs')||'{}');
+function gi(n){return imgs[n]||null}
+function saveImgs(){try{localStorage.setItem('lol_imgs',JSON.stringify(imgs))}catch(e){}}
+function ava(name,sz=32){
+  const img=gi(name);const l=name[0];
+  return`<div class="aw-lav" style="width:${sz}px;height:${sz}px">${img?`<img src="${img}" onerror="this.style.display='none'">`:''}${l}</div>`;
 }
 
-function top3(players,key){
-  return[...players].sort((a,b)=>b[key]-a[key]).slice(0,3).map(p=>({n:p.name,val:p[key]}));
+/* ════ AWARDS ════ */
+function top3(key){return[...PLAYERS].sort((a,b)=>b[key]-a[key]).slice(0,3)}
+function top1(key){return[...PLAYERS].sort((a,b)=>b[key]-a[key])[0]}
+
+function heroCard(p,tag,tagCls,desc,stats){
+  const img=gi(p.name);
+  return`<div class="aw-hc">
+    <div class="aw-hc-bg"></div><div class="aw-hc-pat"></div>
+    <div class="aw-hc-img"><div class="aw-hc-img-in">${img?`<img src="${img}" onerror="this.style.display='none'">`:''}${p.name[0]}</div></div>
+    <div class="aw-hc-fade"></div>
+    <div class="aw-hc-body">
+      <div class="aw-hc-tag ${tagCls}">${tag}</div>
+      <div class="aw-hc-name">${p.name}</div>
+      <div class="aw-hc-desc">${desc}</div>
+      <div class="aw-hc-stats">${stats.map(s=>`<div class="aw-hs"><div class="aw-hs-v">${s.v}</div><div class="aw-hs-l">${s.l}</div></div>`).join('')}</div>
+    </div>
+  </div>`;
 }
+/* ════ PLAYER STATS - 전역 선언 (Awards에서도 사용) ════ */
+let selPlayer=null;
 
-function renderAwards(players){
-  const awards=[
-    {cat:'솔로킬',   title:'솔킬 머신',         sub:'솔로킬 누적 합산',       unit:'킬', pod:top3(players,'soloKills'),    fmt:v=>Math.round(v).toLocaleString()},
-    {cat:'딜링',     title:'나 완전 데프트야',   sub:'분당 대미지 (DPM) 평균', unit:'',   pod:top3(players,'dpm'),           fmt:v=>Math.round(v).toLocaleString()},
-    {cat:'킬',       title:'피 냄새 맡는 중',    sub:'킬 누적 합산',           unit:'킬', pod:top3(players,'totalKills'),   fmt:v=>Math.round(v).toLocaleString()},
-    {cat:'어시스트', title:'보이지 않는 손',     sub:'어시스트 누적 합산',     unit:'A',  pod:top3(players,'totalAssists'), fmt:v=>Math.round(v).toLocaleString()},
-    {cat:'골드',     title:'골드킹',             sub:'분당 골드 (GPM) 평균',   unit:'',   pod:top3(players,'gpm'),           fmt:v=>Math.round(v).toLocaleString()},
-    {cat:'CS',       title:'CS 놓치면 잠 못 잠', sub:'분당 CS 평균 (CSPM)',    unit:'',   pod:top3(players,'cspm'),          fmt:v=>(+v).toFixed(1)},
-    {cat:'시야',     title:'맵핵',               sub:'와드 설치 누적 합산',    unit:'개', pod:top3(players,'wardsPlaced'),  fmt:v=>Math.round(v).toLocaleString()},
-    {cat:'딜 비중',  title:'딜은 내가 책임진다', sub:'팀 내 딜 비중 평균',     unit:'%',  pod:top3(players,'dmgShare'),      fmt:v=>(+v).toFixed(1)},
-    {cat:'생존',     title:'버티는 자가 이긴다', sub:'평균 받은 피해량',       unit:'',   pod:top3(players,'receivedDmg'),  fmt:v=>Math.round(v).toLocaleString()},
-    {cat:'AI 스코어',title:'협곡 시험 만점',     sub:'AI 스코어 평균',         unit:'점', pod:top3(players,'aiScore'),       fmt:v=>(+v).toFixed(1)},
-    {cat:'MVP',      title:'POTG',               sub:'MVP 수상 횟수',          unit:'회', pod:top3(players,'mvp'),           fmt:v=>Math.round(v)},
-  ];
-
-  document.getElementById('awardsContent').innerHTML=`<div class="awards-grid">${
-    awards.map(a=>`
-      <div class="award-card">
-        <div class="award-category">${a.cat}</div>
-        <div class="award-title">${a.title}</div>
-        <div class="award-sub">${a.sub}</div>
-        <div class="award-podium">${
-          a.pod.length===0
-            ?'<div style="color:var(--text-dim);font-size:12px;padding:8px">데이터 없음</div>'
-            :a.pod.map((p,i)=>`
-              <div class="podium-row">
-                <div class="rank-badge rank-${i+1}">${i+1}</div>
-                <div class="podium-name">${p.n}</div>
-                <div class="podium-value">${a.fmt(p.val)}<span class="podium-unit">${a.unit}</span></div>
-              </div>`).join('')
-        }</div>
-      </div>`).join('')
-  }</div>`;
-}
-
-function renderPlayers(players){
-  const sorted=[...players].sort((a,b)=>b.games-a.games);
-  document.getElementById('playersContent').innerHTML=`<div class="stats-grid">${
-    sorted.map(p=>{
-      const wr=Math.round(p.wins/p.games*100);
-      return`
-      <div class="player-card">
-        <div class="player-header">
-          <div class="player-avatar">${p.name[0]}</div>
-          <div class="player-info">
-            <div class="player-name">${p.name}</div>
-            <div class="player-discord">${p.discord}</div>
-          </div>
-          <div class="player-badges">
-            ${p.mvp>0?`<div class="badge badge-mvp">MVP ×${p.mvp}</div>`:''}
-            ${p.ace>0?`<div class="badge badge-ace">ACE ×${p.ace}</div>`:''}
-          </div>
+function lboard(icon,title,sub,key,fmt){
+  const pod=top3(key);const mx=pod[0]?pod[0][key]:1;
+  // 현재 선택된 선수의 순위 계산
+  const allSorted=[...PLAYERS].sort((a,b)=>b[key]-a[key]);
+  const selRank=selPlayer?allSorted.findIndex(x=>x.name===selPlayer.name)+1:-1;
+  const selInTop3=selPlayer&&pod.some(x=>x.name===selPlayer.name);
+  return`<div class="aw-lc">
+    <div class="aw-lc-hd">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span class="aw-lc-ico">${icon}</span>
+          <span style="font-family:'Bebas Neue';font-size:18px;letter-spacing:2px;color:var(--txt)">${title}</span>
         </div>
-        <div class="player-body">
-          <div class="kda-display">
-            <span class="kda-num kda-k">${p.kills}</span><span class="kda-sep">/</span>
-            <span class="kda-num kda-d">${p.deaths}</span><span class="kda-sep">/</span>
-            <span class="kda-num kda-a">${p.assists}</span>
+        <div style="font-size:10px;color:var(--mid);letter-spacing:.3px">${sub}</div>
+      </div>
+      ${selPlayer&&!selInTop3?`<div style="font-size:10px;color:var(--mid);text-align:right;flex-shrink:0"><div style="color:var(--txt);font-weight:700">${selRank}위</div><div style="color:var(--dim)">${selPlayer.name}</div></div>`:''}
+    </div>
+    ${pod.map((p,i)=>{
+      const bw=Math.round(p[key]/mx*100);
+      const img=gi(p.name);
+      const isSel=selPlayer&&p.name===selPlayer.name;
+      return`<div class="aw-lrow" style="${isSel?'background:rgba(200,155,60,.1);border-left:2px solid var(--gold);':''}">
+        <div class="aw-lrk g${i+1}">${i+1}</div>
+        <div class="aw-lav">${img?`<img src="${img}" onerror="this.style.display='none'">`:''}${p.name[0]}</div>
+        <div class="aw-lmid">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <div style="font-size:13px;font-weight:${isSel?700:600};color:${isSel?'var(--gold)':'var(--txt)'}">${p.name}</div>
+            <div style="font-family:'Bebas Neue';font-size:16px;color:var(--gl);letter-spacing:.5px">${fmt(p[key])}</div>
           </div>
-          <div class="kda-ratio">KDA ${p.kdaRatio}:1 &nbsp;·&nbsp; ${p.games}게임</div>
-          <div class="winrate-bar-wrap">
-            <div class="winrate-label"><span>승률</span><span>${wr}% (${p.wins}승 ${p.games-p.wins}패)</span></div>
-            <div class="winrate-bar"><div class="winrate-fill" style="width:${wr}%"></div></div>
-          </div>
-          <div class="stat-row"><span class="stat-label">DPM</span><span class="stat-value sv-accent">${p.dpm.toLocaleString()}</span></div>
-          <div class="stat-row"><span class="stat-label">GPM</span><span class="stat-value sv-gold">${p.gpm.toLocaleString()}</span></div>
-          <div class="stat-row"><span class="stat-label">CSPM</span><span class="stat-value">${p.cspm}</span></div>
-          <div class="stat-row"><span class="stat-label">딜 비중</span><span class="stat-value ${p.dmgShare>=28?'sv-green':''}">${p.dmgShare.toFixed(1)}%</span></div>
-          <div class="stat-row"><span class="stat-label">솔로킬</span><span class="stat-value">${p.soloKills}</span></div>
-          <div class="stat-row"><span class="stat-label">와드 설치</span><span class="stat-value">${p.wardsPlaced}</span></div>
-          <div class="stat-row"><span class="stat-label">AI 스코어</span><span class="stat-value sv-gold">${p.aiScore}</span></div>
+          <div class="aw-lbar-t g${i+1}" style="width:${bw}%"></div>
         </div>
       </div>`;
-    }).join('')
-  }</div>`;
+    }).join('')}
+  </div>`;
+}
+function renderAwards(){
+  const mvpP=PLAYERS.filter(p=>p.mvp>0).sort((a,b)=>b.mvp-a.mvp)[0]||top1('kda');
+  const aiP=top1('ai');
+  document.getElementById('awHeroes').innerHTML=
+    heroCard(mvpP,'Season MVP','gold',`${mvpP.pos} 포지션에서 내전을 지배한 최고의 선수.`,[{v:mvpP.games,l:'Games'},{v:mvpP.kda+':1',l:'KDA'},{v:mvpP.dpm.toLocaleString(),l:'DPM'}])+
+    heroCard(aiP,'AI Score #1','pur',`AI 분석 기준 시즌 최우수 퍼포머.`,[{v:aiP.ai,l:'AI Score'},{v:aiP.wr+'%',l:'Win Rate'},{v:aiP.sk,l:'Solo Kill'}]);
+  document.getElementById('awGrid').innerHTML=[
+    lboard('⚡','DPM Leaders','Damage / Min','dpm',v=>v.toLocaleString()),
+    lboard('💀','KDA Ratio','Kill-Death-Assist','kda',v=>v.toFixed(2)),
+    lboard('💰','GPM Elite','Gold / Min','gpm',v=>v.toLocaleString()),
+    lboard('🌾','CSPM Mastery','CS / Min','cspm',v=>v.toFixed(1)),
+    lboard('👁️','Vision Score','Wards Placed','ward',v=>Math.round(v)),
+    lboard('🎯','Solo Kill Rank','Solo Kill Count','sk',v=>Math.round(v)),
+    lboard('🏆','Win Rate','승률 기준','wr',v=>v+'%'),
+    lboard('🔥','딜 비중','팀 내 딜 비중','dmgShare',v=>v.toFixed(1)+'%'),
+    lboard('🤖','AI Score','AI 평가 평균','ai',v=>v.toFixed(1)),
+  ].join('');
+}
+// renderAwards called inside processAndRender
+
+/* ════ PLAYER STATS ════ */
+function renderRoster(list){
+  document.getElementById('psRoster').innerHTML=list.map(p=>{
+    const img=gi(p.name);
+    const wc=p.wr>=55?'wr-g':p.wr<45?'wr-b':'wr-m';
+    const sel=selPlayer?.name===p.name?'sel':'';
+    return`<div class="ps-pitem ${sel}" onclick="selP('${p.name}')">
+      <div class="ps-pav">
+        ${img?`<img src="${img}" onerror="this.style.display='none'">`:''}${p.name[0]}
+        <div class="ps-pav-cam" onclick="event.stopPropagation();openModal('${p.name}')">📷</div>
+      </div>
+      <div class="ps-pinfo">
+        <div class="ps-pname">${p.name}</div>
+        <div class="ps-psub">${p.pos} · ${p.games}게임</div>
+        <div class="ps-pkda">KDA ${p.kda}:1</div>
+      </div>
+      <div class="ps-pwr ${wc}">${p.wr}%</div>
+    </div>`;
+  }).join('');
+}
+// renderRoster called inside processAndRender
+
+function filterPS(q){
+  renderRoster(q?PLAYERS.filter(p=>p.name.includes(q)||p.disc.includes(q)):PLAYERS);
 }
 
-function switchView(id,btn){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+function selP(name){
+  selPlayer=PLAYERS.find(p=>p.name===name);
+  renderRoster(PLAYERS.filter(p=>{const q=document.getElementById('psSearch').value;return!q||p.name.includes(q)||p.disc.includes(q)}));
+  renderPlayerPanel(selPlayer);
+  // Awards에서 해당 선수 순위 하이라이트 갱신
+  if(document.getElementById('v-awards').classList.contains('on')) renderAwards();
 }
 
-loadData();
+function grade(p){
+  const sc=(p.kda/10*0.3)+(p.wr/100*0.4)+(p.ai/100*0.3);
+  if(sc>=0.75)return{g:'S+',c:'#F0E6A0'};
+  if(sc>=0.60)return{g:'S', c:'#C89B3C'};
+  if(sc>=0.45)return{g:'A', c:'#4FC3F7'};
+  if(sc>=0.30)return{g:'B', c:'#66BB6A'};
+  return{g:'C',c:'#5a5a8a'};
+}
+
+// 리그 내 순위 계산 (1등 = 1)
+function getRank(p, key){
+  return [...PLAYERS].sort((a,b)=>b[key]-a[key]).findIndex(x=>x.name===p.name)+1;
+}
+function rankBadge(rank, total){
+  const pct=Math.round((1-rank/total)*100);
+  const c=rank===1?'#F0E6A0':rank<=3?'#C89B3C':rank<=Math.ceil(total/3)?'#4FC3F7':'#5a5a8a';
+  return`<span style="font-size:9px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}44;padding:1px 6px;border-radius:2px">${rank}위</span>`;
+}
+
+function renderPlayerPanel(p){
+  const img=gi(p.name);
+  const gr=grade(p);
+  const kc=p.kda>=3?'#66BB6A':p.kda>=2?'#F0E6A0':'#EF5350';
+  const wrc=p.wr>=55?'#66BB6A':p.wr<45?'#EF5350':'#5a5a8a';
+  const total=PLAYERS.length;
+
+  // 주요 스탯 순위
+  const ranks={
+    dpm:getRank(p,'dpm'), gpm:getRank(p,'gpm'), kda:getRank(p,'kda'),
+    cspm:getRank(p,'cspm'), wr:getRank(p,'wr'), ai:getRank(p,'ai'),
+    ward:getRank(p,'ward'), sk:getRank(p,'sk'), dmgShare:getRank(p,'dmgShare'),
+  };
+
+  // ── 4축 레이더
+  const maxD={
+    dpm:Math.max(...PLAYERS.map(x=>x.dpm),1),
+    gpm:Math.max(...PLAYERS.map(x=>x.gpm),1),
+    cspm:Math.max(...PLAYERS.map(x=>x.cspm),1),
+    kda:Math.max(...PLAYERS.map(x=>x.kda),1),
+    wr:100, ai:Math.max(...PLAYERS.map(x=>x.ai),1),
+    ward:Math.max(...PLAYERS.map(x=>x.ward),1),
+    sk:Math.max(...PLAYERS.map(x=>x.sk),1),
+  };
+  const axes4=[
+    {lbl:'공격력', val:((p.kda/maxD.kda)+(p.dpm/maxD.dpm))/2},
+    {lbl:'시야',   val:p.ward/maxD.ward},
+    {lbl:'팀파이트',val:((p.dmgShare/35)+(p.ai/maxD.ai))/2},
+    {lbl:'운영',   val:((p.gpm/maxD.gpm)+(p.cspm/maxD.cspm))/2},
+  ];
+  const n4=4,cx=120,cy=120,r=85,lr=110;
+  const ang4=i=>(Math.PI*2*i/n4)-Math.PI/2;
+  const pt4=(i,ratio)=>[cx+Math.cos(ang4(i))*r*ratio,cy+Math.sin(ang4(i))*r*ratio];
+  const lpt4=i=>[cx+Math.cos(ang4(i))*lr,cy+Math.sin(ang4(i))*lr];
+  let grid4='';
+  [.25,.5,.75,1].forEach(ratio=>{
+    const pts=axes4.map((_,i)=>pt4(i,ratio).join(',')).join(' ');
+    grid4+=`<polygon points="${pts}" fill="${ratio===1?'none':'rgba(200,155,60,.04)'}" stroke="${ratio===1?'rgba(200,155,60,.35)':'rgba(255,255,255,.07)'}" stroke-width="${ratio===1?1:.7}"/>`;
+  });
+  const axL4=axes4.map((_,i)=>{const[x,y]=pt4(i,1);return`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.08)" stroke-width=".7"/>`;}).join('');
+  const dpts4=axes4.map((ax,i)=>pt4(i,Math.min(ax.val,1)).join(',')).join(' ');
+  const dots4=axes4.map((ax,i)=>{const[x,y]=pt4(i,Math.min(ax.val,1));return`<circle cx="${x}" cy="${y}" r="3.5" fill="#C89B3C" stroke="rgba(200,155,60,.4)" stroke-width="5"/>`;}).join('');
+  const lbls4=axes4.map((ax,i)=>{
+    const[x,y]=lpt4(i);
+    return`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" fill="rgba(200,180,120,.75)" font-size="9.5" font-family="Noto Sans KR" font-weight="700">${ax.lbl}</text>`;
+  }).join('');
+  const radarSVG=`<svg width="240" height="240" viewBox="0 0 240 240">${grid4}${axL4}<polygon points="${dpts4}" fill="rgba(200,155,60,.2)" stroke="#C89B3C" stroke-width="2"/>${dots4}${lbls4}</svg>`;
+
+  // 섹션 타이틀 공통 헬퍼
+  const secTitle=(emoji,kr,note='')=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:3px;height:18px;background:var(--gold);border-radius:2px"></div>
+        <span style="font-size:13px;font-weight:700;color:var(--txt)">${emoji} ${kr}</span>
+      </div>
+      ${note?`<span style="font-size:10px;color:var(--dim)">${note}</span>`:''}
+    </div>`;
+
+  // 스탯 셀 공통 헬퍼 — 수치 크게
+  const statCell=(lbl,val,sub,color,rank)=>`
+    <div style="background:var(--s2);padding:14px 16px;position:relative">
+      <div style="position:absolute;top:10px;right:10px">${rankBadge(rank,total)}</div>
+      <div style="font-size:10px;font-weight:600;color:var(--mid);margin-bottom:6px;letter-spacing:.3px">${lbl}</div>
+      <div style="font-family:'Bebas Neue';font-size:32px;letter-spacing:1px;color:${color};line-height:1">${val}</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:3px">${sub}</div>
+    </div>`;
+
+  document.getElementById('psDet').innerHTML=`
+
+  <!-- ① 선수 히어로 카드 -->
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:8px;overflow:hidden;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:150px 1fr;min-height:150px">
+      <div style="position:relative;background:linear-gradient(135deg,#0a0a16,#150f00);overflow:hidden;cursor:pointer" onclick="openModal('${p.name}')">
+        ${img?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:.88" onerror="this.style.display='none'">`:''}
+        <div style="position:absolute;inset:0;background:linear-gradient(to right,transparent 55%,var(--s1))"></div>
+        <div style="position:absolute;bottom:8px;left:10px;font-size:9px;color:rgba(200,155,60,.55);letter-spacing:1px">📷 이미지 변경</div>
+      </div>
+      <div style="padding:18px 20px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+            <span style="font-size:10px;font-weight:700;color:var(--gold);background:rgba(200,155,60,.12);border:1px solid rgba(200,155,60,.3);padding:2px 8px;border-radius:3px">${p.pos}</span>
+            ${p.mvp>0?`<span style="font-size:10px;font-weight:700;color:var(--gold);background:rgba(200,155,60,.15);border:1px solid rgba(200,155,60,.3);padding:2px 8px;border-radius:3px">MVP ${p.mvp}회</span>`:''}
+            ${p.ace>0?`<span style="font-size:10px;font-weight:700;color:var(--red);background:rgba(239,83,80,.1);border:1px solid rgba(239,83,80,.3);padding:2px 8px;border-radius:3px">ACE ${p.ace}회</span>`:''}
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:38px;letter-spacing:3px;line-height:1;color:var(--txt)">${p.name}</div>
+          <div style="font-size:12px;color:var(--mid);margin-top:4px">${p.disc}</div>
+        </div>
+        <!-- 핵심 지표 3종 + 등급 -->
+        <div style="display:flex;gap:20px;margin-top:14px;align-items:flex-end">
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--mid);letter-spacing:.5px;margin-bottom:3px">승률</div>
+            <div style="font-family:'Bebas Neue';font-size:30px;line-height:1;color:${wrc}">${p.wr}%</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--mid);letter-spacing:.5px;margin-bottom:3px">KDA</div>
+            <div style="font-family:'Bebas Neue';font-size:30px;line-height:1;color:${kc}">${p.kda}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--mid);letter-spacing:.5px;margin-bottom:3px">DPM</div>
+            <div style="font-family:'Bebas Neue';font-size:30px;line-height:1;color:var(--cyan)">${p.dpm.toLocaleString()}</div>
+          </div>
+          <div style="margin-left:auto;text-align:center;background:rgba(200,155,60,.06);border:1px solid rgba(200,155,60,.2);border-radius:6px;padding:6px 14px">
+            <div style="font-size:9px;font-weight:600;color:var(--mid);margin-bottom:2px">등급</div>
+            <div style="font-family:'Bebas Neue';font-size:32px;line-height:1;color:${gr.c}">${gr.g}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height:3px;background:var(--s3)">
+      <div style="height:100%;width:${p.wr}%;background:${wrc};transition:width 1s ease"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:7px 20px;font-size:11px;color:var(--mid);background:var(--s2)">
+      <span><b style="color:var(--txt)">${p.games}</b>게임 · <b style="color:var(--green)">${p.wins}</b>승 <b style="color:var(--red)">${p.games-p.wins}</b>패</span>
+      <span>킬 <b style="color:var(--green)">${p.k}</b> · 데스 <b style="color:var(--red)">${p.d}</b> · 어시스트 <b style="color:var(--cyan)">${p.a}</b></span>
+    </div>
+  </div>
+
+  <!-- ② 퍼포먼스 매트릭스 -->
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:16px 18px;margin-bottom:16px">
+    ${secTitle('🕸','퍼포먼스 매트릭스','공격력 · 시야 · 팀파이트 · 운영')}
+    <div style="display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:center">
+      <div style="display:flex;justify-content:center">${radarSVG}</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${axes4.map(ax=>{
+          const pct=Math.round(Math.min(ax.val,1)*100);
+          const bc=pct>=75?'#66BB6A':pct>=50?'#C89B3C':pct>=30?'#4FC3F7':'#5a5a8a';
+          return`<div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:12px;font-weight:700;color:var(--txt)">${ax.lbl}</span>
+              <span style="font-family:'Bebas Neue';font-size:18px;color:${bc};letter-spacing:1px">${pct}<span style="font-size:11px;margin-left:1px;opacity:.6">점</span></span>
+            </div>
+            <div style="height:6px;background:var(--b1);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${pct}%;background:${bc};border-radius:3px;transition:width 1s ease"></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ AI 통합 점수 -->
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:16px 18px;margin-bottom:16px">
+    ${secTitle('🤖','AI 통합 점수',rankBadge(ranks.ai,total)+' 리그 내 순위')}
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center">
+      <div>
+        <div style="font-family:'Bebas Neue';font-size:72px;letter-spacing:3px;color:var(--gold);line-height:1">${p.ai}</div>
+        <div style="font-size:11px;color:var(--mid);margin-top:4px">/ 100점 만점</div>
+      </div>
+      <div>
+        <div style="height:8px;background:var(--b1);border-radius:4px;overflow:hidden;margin-bottom:8px">
+          <div style="height:100%;width:${p.ai}%;background:linear-gradient(90deg,#C89B3C,#F0E6A0);border-radius:4px;transition:width 1.2s ease"></div>
+        </div>
+        <div style="font-size:11px;color:var(--mid)">전체 <b style="color:var(--txt)">${total}명</b> 중 <b style="color:var(--gold)">${ranks.ai}위</b> · 상위 <b style="color:var(--gold)">${Math.round((1-ranks.ai/total)*100)}%</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 전투 & 경제 지표 -->
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:16px 18px">
+    ${secTitle('⚔️','전투 & 경제 지표',`전체 ${p.games}게임 평균`)}
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--b1);border-radius:6px;overflow:hidden">
+      ${statCell('분당 딜량 (DPM)',  p.dpm.toLocaleString(), '높을수록 팀 기여도↑', 'var(--cyan)',   ranks.dpm)}
+      ${statCell('분당 골드 (GPM)',  p.gpm.toLocaleString(), '파밍·교전 효율 지표',  'var(--gold)',   ranks.gpm)}
+      ${statCell('KDA 비율',         p.kda.toFixed(2),       '킬·데스·어시스트 종합', kc,             ranks.kda)}
+      ${statCell('분당 CS',          p.cspm.toFixed(1),      '파밍 집중도 지표',      'var(--txt)',    ranks.cspm)}
+      ${statCell('딜 비중',          p.dmgShare.toFixed(1)+'%','팀 내 피해량 비율',   p.dmgShare>=28?'var(--green)':'var(--txt)', ranks.dmgShare)}
+      ${statCell('와드 설치',        p.ward+'개',            '누적 시야 기여도',      'var(--purple)', ranks.ward)}
+    </div>
+  </div>
+  `;
+
+  // ── 사이드바: 스탯 순위 카드
+  document.getElementById('psRad').innerHTML=`
+  <div class="ps-merged-right-title">📊 리그 내 순위</div>
+
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:11px 13px;background:var(--s2);border:1px solid var(--b1);border-radius:5px">
+    ${(()=>{const i2=gi(p.name);return`<div style="width:38px;height:38px;border-radius:6px;background:var(--s3);border:1px solid var(--b2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:17px;color:var(--gold);position:relative;flex-shrink:0">${i2?`<img src="${i2}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.style.display='none'">`:''}${p.name[0]}</div>`;})()}
+    <div style="flex:1;min-width:0">
+      <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+      <div style="font-size:10px;color:var(--mid);margin-top:1px">${p.pos} · 등급 <span style="color:${gr.c};font-weight:700">${gr.g}</span></div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:8px">
+    ${[
+      {lbl:'AI 통합 점수', val:p.ai.toFixed(1),           key:'ai',        c:'var(--gold)'},
+      {lbl:'분당 딜량',    val:p.dpm.toLocaleString(),     key:'dpm',       c:'var(--cyan)'},
+      {lbl:'분당 골드',    val:p.gpm.toLocaleString(),     key:'gpm',       c:'#F0E6A0'},
+      {lbl:'KDA 비율',     val:p.kda.toFixed(2),           key:'kda',       c:kc},
+      {lbl:'분당 CS',      val:p.cspm.toFixed(1),          key:'cspm',      c:'var(--txt)'},
+      {lbl:'승률',         val:p.wr+'%',                   key:'wr',        c:wrc},
+      {lbl:'딜 비중',      val:p.dmgShare.toFixed(1)+'%',  key:'dmgShare',  c:'var(--green)'},
+      {lbl:'와드 설치',    val:p.ward+'개',                key:'ward',      c:'var(--purple)'},
+    ].map(s=>{
+      const rank=ranks[s.key];
+      const pct=Math.round((1-(rank-1)/total)*100);
+      const bc=rank===1?'#F0E6A0':rank<=3?'#C89B3C':rank<=Math.ceil(total/3)?'#4FC3F7':'#5a5a8a';
+      return`<div style="background:var(--s2);border:1px solid var(--b1);border-radius:5px;padding:10px 12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:11px;font-weight:600;color:var(--txt)">${s.lbl}</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-family:'Bebas Neue';font-size:20px;color:${s.c};letter-spacing:.5px">${s.val}</span>
+            <span style="font-size:10px;font-weight:700;color:${bc};background:${bc}18;border:1px solid ${bc}44;padding:1px 6px;border-radius:2px">${rank}위</span>
+          </div>
+        </div>
+        <div style="height:4px;background:var(--b1);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${bc};border-radius:2px;transition:width .8s ease"></div>
+        </div>
+        <div style="font-size:9px;color:var(--dim);margin-top:3px">전체 ${total}명 중 ${rank}위 · 상위 ${pct}%</div>
+      </div>`;
+    }).join('')}
+  </div>
+  `;
+}
+
+/* 구버전 함수 호환 */
+function renderDetail(p){renderPlayerPanel(p);}
+function renderRadar(p){}
+
+/* ════ TEAM COMPARE ════ */
+const LANES=[
+  {id:'top',    nm:'TOP',    ico:'⚔️'},
+  {id:'jungle', nm:'JUNGLE', ico:'🌲'},
+  {id:'mid',    nm:'MID',    ico:'⚡'},
+  {id:'adc',    nm:'BOT',    ico:'🏹'},
+  {id:'support',nm:'SUP',    ico:'🛡️'},
+];
+let cmpSlots={blue:Array(5).fill(null),red:Array(5).fill(null)};
+let ddEl=null,ddTarget=null;
+
+function renderCmpSlots(){
+  ['blue','red'].forEach(team=>{
+    const el=document.getElementById(`tc${team[0].toUpperCase()+team.slice(1)}Slots`);
+    el.innerHTML=LANES.map((lane,i)=>{
+      const pl=cmpSlots[team][i];
+      const img=pl?gi(pl.name):null;
+      return`<div class="tc-slot ${pl?'':'empty'}" id="slot-${team}-${i}">
+        <div class="tc-slot-top">
+          <span class="tc-slot-lane">${lane.ico}</span>
+          <span class="tc-slot-lane-nm">${lane.nm}</span>
+          ${pl?`<button class="tc-slot-clear" onclick="clearSlot('${team}',${i})">✕</button>`:''}
+        </div>
+        ${pl?`
+        <div class="tc-slot-player">
+          <div class="tc-slot-av">${img?`<img src="${img}" onerror="this.style.display='none'">`:''}${pl.name[0]}</div>
+          <div style="flex:1;min-width:0">
+            <div class="tc-slot-pname">${pl.name}</div>
+            <div class="tc-slot-stat">KDA ${pl.kda} · 승률 ${pl.wr}%</div>
+          </div>
+        </div>`:`
+        <div class="tc-slot-search-wrap"
+          id="sw-${team}-${i}"
+          onmouseenter="showDD('${team}',${i})"
+        >
+          <span class="tc-slot-search-ico">🔍</span>
+          <input
+            class="tc-slot-search-inp"
+            id="ss-${team}-${i}"
+            placeholder="커서 올리거나 검색..."
+            oninput="filterDD('${team}',${i},this.value)"
+            onfocus="showDD('${team}',${i})"
+            autocomplete="off"
+          >
+        </div>`}
+      </div>`;
+    }).join('');
+  });
+  renderCenter();
+}
+// renderCmpSlots called inside processAndRender
+
+/* ── 단일 전역 드롭다운 (fixed 포지션) ── */
+let _ddTeam=null,_ddIdx=null;
+const _ddEl=(()=>{
+  const el=document.createElement('div');
+  el.className='tc-slot-dd';
+  el.style.display='none';
+  document.body.appendChild(el);
+  return el;
+})();
+
+function showDD(team,i){
+  _ddTeam=team;_ddIdx=i;
+  const inp=document.getElementById(`ss-${team}-${i}`);
+  const q=inp?inp.value:'';
+  _renderDD(team,i,q);
+
+  // 좌표 계산
+  const wrap=document.getElementById(`sw-${team}-${i}`);
+  if(!wrap)return;
+  const r=wrap.getBoundingClientRect();
+  _ddEl.style.left=r.left+'px';
+  _ddEl.style.top=(r.bottom+2)+'px';
+  _ddEl.style.width=r.width+'px';
+  _ddEl.style.display='block';
+}
+
+function filterDD(team,i,q){
+  if(_ddTeam===team&&_ddIdx===i){
+    _renderDD(team,i,q);
+  } else {
+    showDD(team,i);
+  }
+}
+
+function _renderDD(team,i,q=''){
+  const used=new Set([...cmpSlots.blue,...cmpSlots.red].filter(Boolean).map(p=>p.name));
+  let avail=PLAYERS.filter(p=>!used.has(p.name))
+    .sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+  const res=q.trim()
+    ?avail.filter(p=>p.name.includes(q.trim())||p.disc.includes(q.trim()))
+    :avail;
+
+  if(!res.length){
+    _ddEl.innerHTML=`<div class="tc-slot-dd-empty">검색 결과 없음</div>`;
+    return;
+  }
+  const posMap={탑:'TOP',정글:'JGL',미드:'MID',원딜:'BOT',서포터:'SUP'};
+  _ddEl.innerHTML=res.slice(0,12).map(p=>{
+    const img=gi(p.name);
+    const wc=p.wr>=55?'g':p.wr<45?'b':'m';
+    return`<div class="tc-slot-dd-item" onmousedown="pickSlot('${team}',${i},'${p.name}')">
+      <div class="tc-slot-dd-av">${img?`<img src="${img}" onerror="this.style.display='none'">`:''}${p.name[0]}</div>
+      <div style="flex:1;min-width:0">
+        <div class="tc-slot-dd-name">${p.name}</div>
+        <div class="tc-slot-dd-sub">${posMap[p.pos]||p.pos} · KDA ${p.kda} · ${p.games}게임</div>
+      </div>
+      <div class="tc-slot-dd-wr ${wc}">${p.wr}%</div>
+    </div>`;
+  }).join('');
+}
+
+function pickSlot(team,i,name){
+  cmpSlots[team][i]=PLAYERS.find(p=>p.name===name);
+  _ddEl.style.display='none';
+  _ddTeam=null;_ddIdx=null;
+  renderCmpSlots();
+}
+
+function assignSlot(team,i,name){pickSlot(team,i,name);}
+
+function clearSlot(team,i){
+  cmpSlots[team][i]=null;
+  _ddEl.style.display='none';
+  renderCmpSlots();
+}
+
+function addToCmp(name){
+  const p=PLAYERS.find(x=>x.name===name);if(!p)return;
+  let placed=false;
+  for(let i=0;i<5;i++){if(!cmpSlots.blue[i]){cmpSlots.blue[i]=p;placed=true;break;}}
+  if(!placed)for(let i=0;i<5;i++){if(!cmpSlots.red[i]){cmpSlots.red[i]=p;placed=true;break;}}
+  if(!placed){alert('슬롯이 가득 찼습니다');return;}
+  renderCmpSlots();
+}
+
+/* 외부 클릭 시 드롭다운 닫기 */
+document.addEventListener('mousedown',e=>{
+  if(!e.target.closest('.tc-slot-search-wrap')&&!e.target.closest('.tc-slot-dd')){
+    _ddEl.style.display='none';_ddTeam=null;_ddIdx=null;
+  }
+});
+
+/* ── CENTER ANALYSIS ── */
+function radarSVG(bP, rP, size=200){
+  // 6개 축: 라인페이즈(KDA), DPM, GPM, CSPM, 승률, AI
+  const maxD={
+    kda:  Math.max(...PLAYERS.map(x=>x.kda), 1),
+    dpm:  Math.max(...PLAYERS.map(x=>x.dpm), 1),
+    gpm:  Math.max(...PLAYERS.map(x=>x.gpm), 1),
+    cspm: Math.max(...PLAYERS.map(x=>x.cspm), 1),
+    wr:   100,
+    ai:   Math.max(...PLAYERS.map(x=>x.ai), 1),
+  };
+  const AXES=[
+    {key:'kda',  lbl:'KDA'},
+    {key:'dpm',  lbl:'DPM'},
+    {key:'gpm',  lbl:'GOLD'},
+    {key:'cspm', lbl:'CS/M'},
+    {key:'wr',   lbl:'WIN%'},
+    {key:'ai',   lbl:'AI'},
+  ];
+  const n=AXES.length, cx=size/2, cy=size/2, r=(size/2)*0.62, lr=(size/2)*0.80;
+  const ang=i=>(Math.PI*2*i/n)-Math.PI/2;
+  const pt=(i,ratio)=>[cx+Math.cos(ang(i))*r*ratio, cy+Math.sin(ang(i))*r*ratio];
+  const lpt=i=>[cx+Math.cos(ang(i))*lr, cy+Math.sin(ang(i))*lr];
+
+  // grid
+  let grid='';
+  [.25,.5,.75,1].forEach(ratio=>{
+    const pts=AXES.map((_,i)=>pt(i,ratio).join(',')).join(' ');
+    grid+=`<polygon points="${pts}" fill="none" stroke="${ratio===1?'rgba(200,155,60,.25)':'rgba(255,255,255,.06)'}" stroke-width="${ratio===1?1:.7}"/>`;
+  });
+  const axLines=AXES.map((_,i)=>{const[x,y]=pt(i,1);return`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.07)" stroke-width=".7"/>`;}).join('');
+
+  // data polygons
+  const poly=(p,color,opacity)=>{
+    if(!p)return'';
+    const pts=AXES.map((ax,i)=>pt(i,Math.min(p[ax.key]/maxD[ax.key],1)).join(',')).join(' ');
+    const dots=AXES.map((ax,i)=>{const[x,y]=pt(i,Math.min(p[ax.key]/maxD[ax.key],1));return`<circle cx="${x}" cy="${y}" r="3" fill="${color}" opacity=".9"/>`;}).join('');
+    return`<polygon points="${pts}" fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-width="1.5" stroke-opacity=".9"/>${dots}`;
+  };
+
+  // labels
+  const lbls=AXES.map((ax,i)=>{
+    const[x,y]=lpt(i);
+    return`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" fill="rgba(160,180,200,.7)" font-size="9" font-family="Noto Sans KR">${ax.lbl}</text>`;
+  }).join('');
+
+  return`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    ${grid}${axLines}
+    ${poly(rP,'#ef6fa8',.12)}
+    ${poly(bP,'#4FC3F7',.12)}
+    ${bP?poly(bP,'#4FC3F7',.0):''}
+    ${rP?poly(rP,'#ef6fa8',.0):''}
+    ${lbls}
+  </svg>`;
+}
+
+function renderCenter(){
+  const center=document.getElementById('tcCenter');
+  const bFilled=cmpSlots.blue.filter(Boolean);
+  const rFilled=cmpSlots.red.filter(Boolean);
+  if(!bFilled.length&&!rFilled.length){
+    center.innerHTML='<div style="text-align:center;color:var(--dim);font-size:11px;letter-spacing:1px;padding:80px 0;word-break:keep-all">양 팀 선수를 선택하면<br>분석이 표시됩니다</div>';
+    return;
+  }
+
+  /* Win probability */
+  const score=ps=>ps.reduce((s,p)=>s+(p.kda*0.3+p.wr*0.5+p.ai*0.2),0)/(ps.length||1);
+  const bsc=bFilled.length?score(bFilled):50, rsc=rFilled.length?score(rFilled):50;
+  const tot=bsc+rsc||1;
+  const bpct=Math.round(bsc/tot*100), rpct=100-bpct;
+
+  /* Team avg */
+  const avg=(ps,key)=>ps.length?+(ps.reduce((s,p)=>s+p[key],0)/ps.length).toFixed(1):0;
+  const bDpm=avg(bFilled,'dpm'), rDpm=avg(rFilled,'dpm');
+  const bGpm=avg(bFilled,'gpm'), rGpm=avg(rFilled,'gpm');
+  const bWr=avg(bFilled,'wr'),   rWr=avg(rFilled,'wr');
+
+  /* Per-lane matchup cards */
+  const CSTATS=[
+    {key:'kda',  lbl:'KDA',  fmt:v=>v.toFixed(2), hi:true},
+    {key:'dpm',  lbl:'DPM',  fmt:v=>v.toLocaleString(), hi:true},
+    {key:'gpm',  lbl:'골드/분', fmt:v=>v.toLocaleString(), hi:true},
+    {key:'cspm', lbl:'CS/분', fmt:v=>v.toFixed(1), hi:true},
+    {key:'wr',   lbl:'승률',  fmt:v=>v+'%', hi:true},
+  ];
+
+  const laneCards=LANES.map((lane,i)=>{
+    const b=cmpSlots.blue[i], r=cmpSlots.red[i];
+    if(!b&&!r)return'';
+    const bImg=b?gi(b.name):null, rImg=r?gi(r.name):null;
+
+    // stat rows under radar
+    const statRows=CSTATS.map(st=>{
+      const bv=b?b[st.key]:null, rv=r?r[st.key]:null;
+      const bc=bv!=null&&rv!=null?(bv>rv?'win':bv<rv?'lose':'tie'):'tie';
+      const rc=bv!=null&&rv!=null?(rv>bv?'win':rv<bv?'lose':'tie'):'tie';
+      const clr={win:'var(--green)',lose:'var(--red)',tie:'var(--mid)'};
+      return`<div style="display:grid;grid-template-columns:1fr 48px 1fr;align-items:center;gap:4px;margin-bottom:5px">
+        <div style="text-align:right;font-size:12px;font-weight:700;color:${clr[bc]}">${b?st.fmt(bv):'—'}</div>
+        <div style="text-align:center;font-size:9px;color:var(--mid);letter-spacing:.5px">${st.lbl}</div>
+        <div style="text-align:left;font-size:12px;font-weight:700;color:${clr[rc]}">${r?st.fmt(rv):'—'}</div>
+      </div>`;
+    }).join('');
+
+    // avatar helper
+    const avHtml=(p,img,color)=>p?`
+      <div style="display:flex;align-items:center;gap:6px;${color==='#ef6fa8'?'flex-direction:row-reverse':''}">
+        <div style="width:32px;height:32px;border-radius:5px;background:var(--s3);border:1px solid ${color}44;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:14px;color:${color};position:relative">
+          ${img?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.style.display='none'">`:''}
+          ${p.name[0]}
+        </div>
+        <div style="${color==='#ef6fa8'?'text-align:right':''}">
+          <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:1px;color:${color}">${p.name}</div>
+          <div style="font-size:9px;color:var(--mid)">${p.wr}% 승률</div>
+        </div>
+      </div>`:'<div style="font-size:11px;color:var(--dim)">—</div>';
+
+    return`<div style="background:var(--s1);border:1px solid var(--b1);border-radius:6px;overflow:hidden;margin-bottom:10px">
+      <!-- 카드 헤더: 선수명 + 라인 -->
+      <div style="display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;padding:10px 14px;border-bottom:1px solid var(--b1);gap:6px;background:linear-gradient(135deg,rgba(79,195,247,.04),transparent 50%,rgba(239,111,168,.04))">
+        ${avHtml(b,bImg,'#4FC3F7')}
+        <div style="text-align:center">
+          <div style="font-size:18px">${lane.ico}</div>
+          <div style="font-size:8px;color:var(--dim);letter-spacing:1px">${lane.nm}</div>
+        </div>
+        ${avHtml(r,rImg,'#ef6fa8')}
+      </div>
+
+      <!-- 레이더 + 스탯 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--b1)">
+        <!-- 육각형 레이더 -->
+        <div style="display:flex;align-items:center;justify-content:center;padding:12px;border-right:1px solid var(--b1)">
+          ${radarSVG(b,r,180)}
+        </div>
+        <!-- 수치 비교 -->
+        <div style="padding:12px 14px;display:flex;flex-direction:column;justify-content:center">
+          <!-- 범례 -->
+          <div style="display:flex;gap:10px;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#4FC3F7">
+              <div style="width:10px;height:2px;background:#4FC3F7;border-radius:1px"></div>
+              ${b?b.name:'BLUE'}
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#ef6fa8">
+              <div style="width:10px;height:2px;background:#ef6fa8;border-radius:1px"></div>
+              ${r?r.name:'RED'}
+            </div>
+          </div>
+          ${statRows}
+        </div>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  /* Team metrics bar */
+  const metBar=(bv,rv,lbl,fmt)=>{
+    const t=bv+rv||1; const bw=Math.round(bv/t*100);
+    return`<div style="margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin-bottom:4px;gap:8px">
+        <span style="font-size:11px;font-weight:700;color:var(--cyan)">${fmt(bv)}</span>
+        <span style="font-size:9px;color:var(--mid);letter-spacing:.5px;text-align:center">${lbl}</span>
+        <span style="font-size:11px;font-weight:700;color:var(--pink);text-align:right">${fmt(rv)}</span>
+      </div>
+      <div style="height:4px;border-radius:2px;overflow:hidden;background:var(--s3);display:flex">
+        <div style="width:${bw}%;background:var(--cyan);border-radius:2px 0 0 2px;transition:width .7s ease"></div>
+        <div style="flex:1;background:var(--pink);border-radius:0 2px 2px 0"></div>
+      </div>
+    </div>`;
+  };
+
+  center.innerHTML=`
+    <!-- Win Probability -->
+    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:18px 22px;margin-bottom:10px">
+      <div style="font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:14px">WIN PROBABILITY ANALYSIS</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px">
+        <div>
+          <div style="font-family:'Bebas Neue';font-size:48px;letter-spacing:2px;color:var(--cyan);line-height:1">${bpct}%</div>
+          <div style="font-size:9px;color:var(--mid);letter-spacing:1px">BLUE 예측</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Bebas Neue';font-size:48px;letter-spacing:2px;color:var(--pink);line-height:1">${rpct}%</div>
+          <div style="font-size:9px;color:var(--mid);letter-spacing:1px">RED 예측</div>
+        </div>
+      </div>
+      <div style="height:8px;border-radius:4px;overflow:hidden;background:var(--s3);display:flex">
+        <div style="width:${bpct}%;background:var(--cyan);border-radius:4px 0 0 4px;transition:width .8s ease"></div>
+        <div style="flex:1;background:var(--pink);border-radius:0 4px 4px 0"></div>
+      </div>
+    </div>
+
+    <!-- Lane Matchup: 레이더 카드 -->
+    <div style="font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <div style="flex:1;height:1px;background:var(--b1)"></div>
+      LANE MATCHUP
+      <div style="flex:1;height:1px;background:var(--b1)"></div>
+    </div>
+    ${laneCards||'<div style="text-align:center;color:var(--dim);font-size:11px;padding:20px">선수를 선택하면 매치업이 표시됩니다</div>'}
+
+    <!-- Team Metrics -->
+    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:18px 22px">
+      <div style="font-size:8px;letter-spacing:3px;color:var(--mid);text-transform:uppercase;margin-bottom:14px">팀 종합 지표</div>
+      ${metBar(bDpm,rDpm,'평균 DPM',v=>Math.round(v).toLocaleString())}
+      ${metBar(bGpm,rGpm,'평균 GPM',v=>Math.round(v).toLocaleString())}
+      ${metBar(bWr,rWr,'평균 승률',v=>v.toFixed(1)+'%')}
+    </div>
+  `;
+}
+
+/* ════ VIEW SWITCH ════ */
+function gv(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('v-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+/* ════ IMAGE MODAL ════ */
+let mTgt=null,mSrc=null;
+function openModal(name){
+  mTgt=name;mSrc=gi(name)||null;
+  const pv=document.getElementById('mPrev');
+  pv.innerHTML=`${mSrc?`<img src="${mSrc}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`:''}${name[0]}`;
+  document.getElementById('mUrl').value=mSrc||'';
+  document.getElementById('mFile').value='';
+  document.getElementById('imgModal').classList.add('show');
+}
+function closeModal(){document.getElementById('imgModal').classList.remove('show');mTgt=null;mSrc=null;}
+function closeModalOut(e){if(e.target.id==='imgModal')closeModal();}
+function prevUrl(){
+  const url=document.getElementById('mUrl').value.trim();if(!url)return;
+  mSrc=url;const pv=document.getElementById('mPrev');
+  let img=pv.querySelector('img');if(!img){img=document.createElement('img');img.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;inset:0';pv.appendChild(img);}
+  img.src=url;
+}
+function prevFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();rd.onload=ev=>{mSrc=ev.target.result;const pv=document.getElementById('mPrev');let img=pv.querySelector('img');if(!img){img=document.createElement('img');img.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;inset:0';pv.appendChild(img);}img.src=mSrc;};rd.readAsDataURL(f);
+}
+function saveImg(){
+  if(!mTgt)return;
+  if(mSrc)imgs[mTgt]=mSrc;else delete imgs[mTgt];
+  saveImgs();closeModal();
+  renderRoster(PLAYERS.filter(p=>{const q=document.getElementById('psSearch').value;return!q||p.name.includes(q)||p.disc.includes(q)}));
+  if(selPlayer?.name===mTgt)renderDetail(selPlayer);
+  renderCmpSlots();renderAwards();
+}
+
+
+/* ════ APP START ════ */
+document.addEventListener('DOMContentLoaded', () => loadFromSheets());
 </script>
 </body>
 </html>
