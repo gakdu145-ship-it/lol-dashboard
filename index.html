@@ -307,7 +307,13 @@ td.tier-cell .emb{vertical-align:middle}
 .ad.bottom{margin:24px 0 0}
 .ad-label{display:block;font-size:11px;color:var(--muted);margin:0 0 4px 2px}
 .ad-slot{display:block;min-height:90px;overflow:hidden;border-radius:10px}
-.ad-ph{display:flex;align-items:center;justify-content:center;min-height:90px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12.5px;background:var(--surface)}
+.ad-ph{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 12px;min-height:90px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12.5px;background:var(--surface)}
+.rail{display:none;position:fixed;top:80px;width:var(--rw,160px);z-index:5}
+.rail.left{left:calc(50% - 590px - 24px - var(--rw,160px))}
+.rail.right{right:calc(50% - 590px - 24px - var(--rw,160px))}
+.rail .ad-ph,.rail .ad-slot{min-height:600px}
+@media (min-width:1560px){ .rail:not([hidden]){display:block} }
+@media (min-width:1840px){ .rail{--rw:300px} }
 .foot{max-width:1180px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font-size:12px;line-height:1.6}
 .foot a{color:inherit}
 .foot p{margin:6px 0 0;max-width:72ch}
@@ -362,6 +368,8 @@ td.tier-cell .emb{vertical-align:middle}
   </div>
 </header>
 
+<aside class="ad rail left" id="adLeft" hidden aria-label="광고"></aside>
+<aside class="ad rail right" id="adRight" hidden aria-label="광고"></aside>
 <div class="wrap">
   <div id="notice"></div>
   <aside class="ad" id="adTop" hidden aria-label="광고"></aside>
@@ -383,12 +391,13 @@ td.tier-cell .emb{vertical-align:middle}
 const CONFIG = {
   // Supabase DB — 두 값이 채워져 있으면 시트 대신 DB에서 읽어요 (비우면 아래 시트 방식 그대로)
   SUPABASE_URL: 'https://rjkqlwkscolgjzmehloy.supabase.co',
-  SUPABASE_KEY: 'sb_publishable_YBhnRe7N0Rm5kOvfu7wIgg_fOrt5zy4',       // publishable 키 (sb_publishable_...) — 공개돼도 되는 키. secret 키는 절대 넣지 마세요
+  SUPABASE_KEY: '',       // publishable 키 (sb_publishable_...) — 공개돼도 되는 키. secret 키는 절대 넣지 마세요
   GUILD: 'simkong',       // 기본 서버. 주소 뒤에 ?s=서버이름 을 붙이면 다른 서버 기록을 보여줘요
   // 광고 (Google AdSense) — 승인 후 client와 슬롯 ID를 채우면 실제 광고가 나와요
   ADS: {
     client: '',           // 'ca-pub-0000000000000000' (애드센스 > 계정 > 게시자 ID)
-    slots: { top:'', bottom:'' },   // 애드센스 > 광고 > 광고 단위별로 만든 슬롯 ID (숫자)
+    slots: { top:'', bottom:'', left:'', right:'' },   // 애드센스 > 광고 > 광고 단위별로 만든 슬롯 ID (숫자)
+    // left·right는 화면 양옆 세로 광고. 넓은 화면에서만 나와요 (1560px↑ 160×600, 1840px↑ 300×600)
     preview: true         // client가 비어 있을 때 광고 자리를 점선 상자로 미리 보여줘요. 공개 전 false로
   },
   // 방문 분석 (Google Analytics 4) — 측정 ID를 넣으면 페이지별 방문 수가 집계돼요
@@ -1240,6 +1249,10 @@ let adsReady = false, gaReady = false;
 function initAds(){
   if(adsReady) return; adsReady = true;
   const A = CONFIG.ADS, ids = { top:'#adTop', bottom:'#adBottom' };
+  // 양옆 광고는 자리가 있는 넓은 화면에서만 요청 (숨은 자리에 광고를 요청하면 오류·무효 노출이 돼요)
+  const rw = innerWidth >= 1840 ? 300 : innerWidth >= 1560 ? 160 : 0;
+  if(rw){ ids.left = '#adLeft'; ids.right = '#adRight'; }
+  const NAMES = { top:'상단 (반응형)', bottom:'하단 (반응형)', left:`왼쪽 (${rw}×600)`, right:`오른쪽 (${rw}×600)` };
   if(A.client){
     const sc = document.createElement('script');
     sc.async = true; sc.crossOrigin = 'anonymous';
@@ -1248,12 +1261,15 @@ function initAds(){
   }
   Object.entries(ids).forEach(([k, sel]) => {
     const box = $(sel), slot = A.slots[k];
+    const rail = k === 'left' || k === 'right';
     if(A.client && slot){
-      box.innerHTML = `<span class="ad-label">광고</span><ins class="adsbygoogle ad-slot" data-ad-client="${esc(A.client)}" data-ad-slot="${esc(slot)}" data-ad-format="auto" data-full-width-responsive="true"></ins>`;
+      box.innerHTML = rail
+        ? `<span class="ad-label">광고</span><ins class="adsbygoogle ad-slot" style="display:inline-block;width:${rw}px;height:600px" data-ad-client="${esc(A.client)}" data-ad-slot="${esc(slot)}"></ins>`
+        : `<span class="ad-label">광고</span><ins class="adsbygoogle ad-slot" data-ad-client="${esc(A.client)}" data-ad-slot="${esc(slot)}" data-ad-format="auto" data-full-width-responsive="true"></ins>`;
       box.hidden = false;
       try{ (window.adsbygoogle = window.adsbygoogle || []).push({}); }catch(e){ console.warn('[내전 기록] 광고 요청 실패', e); }
     }else if(!A.client && A.preview){
-      box.innerHTML = `<span class="ad-label">광고</span><div class="ad-ph">광고 자리 · ${k === 'top' ? '상단' : '하단'} (반응형)</div>`;
+      box.innerHTML = `<span class="ad-label">광고</span><div class="ad-ph">광고 자리 · ${NAMES[k]}</div>`;
       box.hidden = false;
     }
   });
