@@ -302,6 +302,16 @@ td.tier-cell .emb{vertical-align:middle}
 .empty{padding:36px 20px;text-align:center;color:var(--muted)}
 
 
+/* 광고·푸터 */
+.ad{margin:0 0 16px}
+.ad.bottom{margin:24px 0 0}
+.ad-label{display:block;font-size:11px;color:var(--muted);margin:0 0 4px 2px}
+.ad-slot{display:block;min-height:90px;overflow:hidden;border-radius:10px}
+.ad-ph{display:flex;align-items:center;justify-content:center;min-height:90px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12.5px;background:var(--surface)}
+.foot{max-width:1180px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font-size:12px;line-height:1.6}
+.foot a{color:inherit}
+.foot p{margin:6px 0 0;max-width:72ch}
+
 @media (max-width:960px){
   .prof{grid-template-columns:1fr}
   .sum-grid{grid-template-columns:1fr 1fr}
@@ -313,6 +323,8 @@ td.tier-cell .emb{vertical-align:middle}
   .top-in{gap:12px;padding:0 12px}
   .brand small,.tools .hide-m{display:none}
   .wrap{padding:16px 12px 48px}
+  .foot{padding:0 12px 32px}
+  .ad-slot,.ad-ph{min-height:100px}
   .hide-m{display:none}
   .sum-grid{grid-template-columns:1fr}
   .c1-top .ring{width:56px;height:56px} .c1-top .ring span{width:44px;height:44px;font-size:12.5px}
@@ -352,8 +364,14 @@ td.tier-cell .emb{vertical-align:middle}
 
 <div class="wrap">
   <div id="notice"></div>
+  <aside class="ad" id="adTop" hidden aria-label="광고"></aside>
   <main id="view"></main>
+  <aside class="ad bottom" id="adBottom" hidden aria-label="광고"></aside>
 </div>
+<footer class="foot">
+  <a href="privacy.html">개인정보처리방침</a>
+  <p>내전 기록은 Riot Games의 보증을 받지 않았으며, Riot Games 또는 Riot Games 자산의 제작·관리에 공식적으로 관여한 사람의 견해나 의견을 반영하지 않습니다. Riot Games 및 관련 자산은 Riot Games, Inc.의 상표 또는 등록 상표입니다.</p>
+</footer>
 
 
 <script>
@@ -367,6 +385,15 @@ const CONFIG = {
   SUPABASE_URL: 'https://rjkqlwkscolgjzmehloy.supabase.co',
   SUPABASE_KEY: 'sb_publishable_YBhnRe7N0Rm5kOvfu7wIgg_fOrt5zy4',       // publishable 키 (sb_publishable_...) — 공개돼도 되는 키. secret 키는 절대 넣지 마세요
   GUILD: 'simkong',       // 기본 서버. 주소 뒤에 ?s=서버이름 을 붙이면 다른 서버 기록을 보여줘요
+  // 광고 (Google AdSense) — 승인 후 client와 슬롯 ID를 채우면 실제 광고가 나와요
+  ADS: {
+    client: '',           // 'ca-pub-0000000000000000' (애드센스 > 계정 > 게시자 ID)
+    slots: { top:'', bottom:'' },   // 애드센스 > 광고 > 광고 단위별로 만든 슬롯 ID (숫자)
+    preview: true         // client가 비어 있을 때 광고 자리를 점선 상자로 미리 보여줘요. 공개 전 false로
+  },
+  // 방문 분석 (Google Analytics 4) — 측정 ID를 넣으면 페이지별 방문 수가 집계돼요
+  GA4_ID: '',             // 'G-XXXXXXXXXX'
+  CSV_URL: 'https://script.google.com/macros/s/AKfycbzxbEVgSwnZJzPH86_eOsAlPxCcqJHu2DeWvsfRu6fUjVn-67ZfRpBrdBje4Ah6C3Lo/exec',
   SHEET_NAME: '',         // 기록 탭 이름. 비우면 첫 번째 탭
   START_MMR: 2000,        // 모든 유저의 시작 MMR (여기에 경기별 MMR 변화량을 더해요)
   // 기본 티어표 (심콩_랭킹 탭의 티어표를 불러오면 그 값을 우선 사용)
@@ -1205,6 +1232,44 @@ async function loadFromDb(force){
   return table;
 }
 
+/* ---------- 광고·방문 분석 ----------
+   광고 자리는 #view 바깥(상단·하단)에 고정해서, 정렬·필터로 화면이 다시 그려져도
+   광고를 새로 요청하지 않아요 (같은 페이지에서 광고를 반복 요청하면 정책 위반이 될 수 있음).
+   광고는 기록이 정상으로 불러와진 페이지에만 붙여요 (빈 페이지·오류 화면에는 광고 금지) */
+let adsReady = false, gaReady = false;
+function initAds(){
+  if(adsReady) return; adsReady = true;
+  const A = CONFIG.ADS, ids = { top:'#adTop', bottom:'#adBottom' };
+  if(A.client){
+    const sc = document.createElement('script');
+    sc.async = true; sc.crossOrigin = 'anonymous';
+    sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(A.client);
+    document.head.appendChild(sc);
+  }
+  Object.entries(ids).forEach(([k, sel]) => {
+    const box = $(sel), slot = A.slots[k];
+    if(A.client && slot){
+      box.innerHTML = `<span class="ad-label">광고</span><ins class="adsbygoogle ad-slot" data-ad-client="${esc(A.client)}" data-ad-slot="${esc(slot)}" data-ad-format="auto" data-full-width-responsive="true"></ins>`;
+      box.hidden = false;
+      try{ (window.adsbygoogle = window.adsbygoogle || []).push({}); }catch(e){ console.warn('[내전 기록] 광고 요청 실패', e); }
+    }else if(!A.client && A.preview){
+      box.innerHTML = `<span class="ad-label">광고</span><div class="ad-ph">광고 자리 · ${k === 'top' ? '상단' : '하단'} (반응형)</div>`;
+      box.hidden = false;
+    }
+  });
+}
+function initAnalytics(){
+  if(gaReady || !CONFIG.GA4_ID) return; gaReady = true;
+  const sc = document.createElement('script');
+  sc.async = true; sc.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(CONFIG.GA4_ID);
+  document.head.appendChild(sc);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ dataLayer.push(arguments); };
+  gtag('js', new Date());
+  // 페이지 제목(랭킹·챔피언·유저 이름)이 정해진 뒤에 보내서 GA에서 페이지별로 구분돼요
+  gtag('config', CONFIG.GA4_ID, { page_title: document.title, page_location: location.href });
+}
+
 async function load(arg){
   const force = arg instanceof Event;   // 새로고침 버튼으로 부르면 캐시 무시
   const icons = loadIcons();
@@ -1220,6 +1285,8 @@ async function load(arg){
       console.error('[내전 기록] DB 요청 실패:', e);
     }
     buildMatches(); buildNames(); buildMmr(); buildPos(); render();
+    initAnalytics();
+    if(state.rows.length) initAds();
     await icons; render();
     return;
   }
