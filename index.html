@@ -513,7 +513,7 @@ function normalize(table){
   });
   state.extraCols = extraCols.map(c => c.h);
   const rows = body.map((r,i) => {
-    const res = get(r,'result').toLowerCase(), team = get(r,'team').toLowerCase(), posRaw = get(r,'pos');
+    const res = get(r,'result').toLowerCase(), team = get(r,'team').toLowerCase(), posRaw = get(r,'pos'), summ = fixTag(get(r,'player'));
     return {
       date: get(r,'date'),
       dur: get(r,'dur'),
@@ -521,9 +521,9 @@ function normalize(table){
       team: /레드|red|^r$/.test(team) ? 'red' : 'blue',
       // 유저 식별 키: 디스코드 ID 우선, 미등록이면 롤 소환사명으로 임시 구분
       // (시트가 미등록 유저의 T·U열에 소환사명을 넣어두는 경우도 미등록으로 처리)
-      player: (get(r,'discordId') && get(r,'discordId') !== get(r,'player') ? get(r,'discordId') : '') || get(r,'player'),
-      summoner: get(r,'player'),
-      discordName: get(r,'discordName') && get(r,'discordName') !== get(r,'player') ? get(r,'discordName') : '',
+      player: (get(r,'discordId') && fixTag(get(r,'discordId')) !== summ ? get(r,'discordId') : '') || summ,
+      summoner: summ,
+      discordName: get(r,'discordName') && fixTag(get(r,'discordName')) !== summ ? get(r,'discordName') : '',
       champ: get(r,'champ') || '?',
       pos: POS_ALIAS[posRaw.toLowerCase()] || posRaw || '?',
       win: ['승','승리','w','win','1','true','o'].includes(res),
@@ -586,6 +586,8 @@ function cleanNick(raw){
   return n || String(raw).trim();
 }
 const noTag = n => String(n).replace(/\s*#[^#]*$/,'').trim() || n;
+// 라이엇 기본 태그 KR1은 대소문자만 다른 같은 태그라 KR1로 통일 (닉#kr1 → 닉#KR1). 다른 태그는 그대로
+const fixTag = n => String(n).replace(/#kr1$/i, '#KR1');
 const dn = k => NAMES[k] || noTag(k);
 
 /* ---------- MMR 랭킹 (시트에서 계산한 값) ----------
